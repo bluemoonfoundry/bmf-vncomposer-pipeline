@@ -1,0 +1,22 @@
+{
+  "blender": {
+    "version": "5.1",
+    "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.1\\blender.exe"
+  },
+  "daz_studio": {
+    "version_family": "4",
+    "executable": "X:\\DAZNext\\Applications\\64-bit\\DAZ 3D\\DAZStudio4\\DAZStudio.exe",
+    "install_root": "X:\\DAZNext\\Applications\\64-bit\\DAZ 3D\\DAZStudio4",
+    "plugin_dir": "X:\\DAZNext\\Applications\\64-bit\\DAZ 3D\\DAZStudio4\\plugins"
+  },
+  "diffeomorphic": {
+    "version": "5.1.0",
+    "blender_compatibility": "5.1"
+  },
+  "daz_script_server": {
+    "version": "2.9.2",
+    "daz_target": "ds4",
+    "host": "127.0.0.1",
+    "port": 18811
+  }
+}

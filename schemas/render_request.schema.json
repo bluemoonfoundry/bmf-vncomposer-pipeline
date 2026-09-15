@@ -1,0 +1,335 @@
+{
+  "$defs": {
+    "CameraMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "projection": {
+          "default": "PERSP",
+          "enum": [
+            "PERSP",
+            "ORTHO"
+          ],
+          "title": "Projection",
+          "type": "string"
+        },
+        "focal_length_mm": {
+          "default": 50.0,
+          "exclusiveMinimum": 0.0,
+          "maximum": 300.0,
+          "title": "Focal Length Mm",
+          "type": "number"
+        },
+        "location": {
+          "default": [
+            0.0,
+            -8.0,
+            1.6
+          ],
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Location",
+          "type": "array"
+        },
+        "rotation_euler": {
+          "default": [
+            1.5708,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Rotation Euler",
+          "type": "array"
+        }
+      },
+      "title": "CameraMetadata",
+      "type": "object"
+    },
+    "FACSExpression": {
+      "additionalProperties": false,
+      "properties": {
+        "weights": {
+          "additionalProperties": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Weights",
+          "type": "object"
+        }
+      },
+      "title": "FACSExpression",
+      "type": "object"
+    },
+    "PosePayload": {
+      "additionalProperties": false,
+      "description": "Body pose, expressed as direct Blender bone control.\n\nDAZ Studio is only ever used to source the base character once; all\nposing happens in Blender so it can be driven by natural language. Bone\nnames must match the imported rig's posable (non-\"(drv)\") pose bone\nnames, e.g. \"hip\", \"r_upperarm\", \"l_forearm\" -- see\ndocs/posable_bones.json for the full generated list.",
+      "properties": {
+        "bone_rotations": {
+          "additionalProperties": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "description": "Bone name -> XYZ Euler rotation in radians, applied directly to pose.bones[name].rotation_euler.",
+          "title": "Bone Rotations",
+          "type": "object"
+        },
+        "root_location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional world-space-ish offset applied to the root ('hip') bone's location, for crouching/leaning/repositioning.",
+          "title": "Root Location"
+        },
+        "ik_targets": {
+          "additionalProperties": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Ik Targets",
+          "type": "object"
+        },
+        "look_at_target": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "World-space point for the head and both eyes to look at, via a DAMPED_TRACK constraint on each. Bypasses those bones' imported anatomical LIMIT_ROTATION range (the track constraint evaluates after it in the constraint stack), so keep targets within a plausible forward-facing cone. Omit/None to clear any existing look-at.",
+          "title": "Look At Target"
+        }
+      },
+      "title": "PosePayload",
+      "type": "object"
+    },
+    "SceneLighting": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": [
+            0.0,
+            -1.0,
+            -1.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Direction",
+          "type": "array"
+        },
+        "color_rgb": {
+          "default": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            }
+          ],
+          "title": "Color Rgb",
+          "type": "array"
+        },
+        "ambient_rgb": {
+          "default": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            }
+          ],
+          "title": "Ambient Rgb",
+          "type": "array"
+        },
+        "intensity": {
+          "default": 1.0,
+          "minimum": 0.0,
+          "title": "Intensity",
+          "type": "number"
+        },
+        "confidence": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        }
+      },
+      "title": "SceneLighting",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "character": {
+      "minLength": 1,
+      "title": "Character",
+      "type": "string"
+    },
+    "master_blend": {
+      "minLength": 1,
+      "title": "Master Blend",
+      "type": "string"
+    },
+    "output_path": {
+      "minLength": 1,
+      "title": "Output Path",
+      "type": "string"
+    },
+    "background_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Background Path"
+    },
+    "outfit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outfit"
+    },
+    "hair": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Hair"
+    },
+    "emotion": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Emotion"
+    },
+    "pose": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PosePayload"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "expression": {
+      "$ref": "#/$defs/FACSExpression"
+    },
+    "lighting": {
+      "$ref": "#/$defs/SceneLighting"
+    },
+    "camera": {
+      "$ref": "#/$defs/CameraMetadata"
+    },
+    "render_samples": {
+      "default": 64,
+      "maximum": 4096,
+      "minimum": 1,
+      "title": "Render Samples",
+      "type": "integer"
+    },
+    "transparent": {
+      "default": true,
+      "title": "Transparent",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "character",
+    "master_blend",
+    "output_path"
+  ],
+  "title": "RenderRequest",
+  "type": "object"
+}

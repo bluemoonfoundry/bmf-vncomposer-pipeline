@@ -3,3 +3,17 @@
 .dolt/
 *.db
 .beads-credential-key
+
+# Generated Blender/DAZ binaries and renders -- regenerable via the DAZ
+# import pipeline, too large for git history. Keep JSON metadata
+# (registry.json, daz-root-paths.json) tracked.
+artifacts/*.blend
+artifacts/*.blend1
+artifacts/*.dbz
+artifacts/*.png
+artifacts/**/*.blend
+artifacts/**/*.blend1
+artifacts/**/*.dbz
+artifacts/**/*.png
+__pycache__/
+*.pyc

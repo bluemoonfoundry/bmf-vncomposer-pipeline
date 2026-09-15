@@ -1,0 +1,2237 @@
+{
+  "armature": "Jason Cross",
+  "note": "User-facing FACS/morph control properties, found as raw custom properties on the armature OBJECT (not .data). Drive via armature[name] = value THEN armature.update_tag() (a plain Python write to a custom ID-property does not itself mark the ID dirty for driver re-evaluation, in background or foreground Blender). Two similarly-named controls can drive completely different things (e.g. facs_bs_JawOpen only feeds viseme/lip sub-formulas; facs_bs_JawOpenWide is what actually rotates the jaw bone and drives its own shape keys) -- drives_shape_key_directly tells you which controls have an immediate, visible shape-key effect versus ones that only contribute to other controls' combined formulas. See blender/dump_facs_drivers.py to inspect any single control's full driver chain before relying on it.",
+  "control_count": 446,
+  "controls": [
+    {
+      "name": "FACSDetails_facs_bs_BrowDownLeft_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowDownRight_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowInnerUpLeft_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowInnerUpRight_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowOuterUpLeft_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowOuterUpRight_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowSqueezeLeft_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BrowSqueezeRight_HD2",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_BrowDownLeft",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_BrowDownRight",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_BrowOuterUpLeft",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_BrowOuterUpRight",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_BrowInnerUpLeft",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_BrowInnerUpRight",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_BrowSqueezeLeft",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_BrowSqueezeRight",
+      "category": "brow",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_ctrl_BrowDown",
+      "category": "brow",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_BrowInnerUp",
+      "category": "brow",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_BrowSqueeze",
+      "category": "brow",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_BrowUp",
+      "category": "brow",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "FACSDetails_facs_bs_CheekSquintLeft_HD2",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_CheekSquintRight_HD2",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_NoseSneerLeft_HD2",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_NoseSneerRight_HD2",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_NoseSneerUpperLeft_HD2",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_NoseSneerUpperRight_HD2",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekHollowLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekHollowRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekInflateCounterLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_CheekInflateCounterRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_CheekInflateLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekInflateRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekPuffLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekPuffRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_CheekSquintLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_CheekSquintRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NeckUnderChinFlex",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NoseSneerLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NoseSneerRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NoseSneerUpperLeft",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NoseSneerUpperRight",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_ctrl_CheekHollow",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_CheekPuff",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_CheekSquint",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NoseSneer",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NoseSneerUpper",
+      "category": "cheek_nose_chin",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Bereft",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Bored",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Confident",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Disgust",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Drunk",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Excitement",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Fear",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Flirting",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Happy",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Rage",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Scream",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Shock",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Silly",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Surprised",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Tired",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Triumph",
+      "category": "emotion_preset",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "FACSDetails_facs_bs_EyeSquintLeft_HD2",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_EyeSquintRight_HD2",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeBlinkLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeBlinkRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeCornerTightnessInnerLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeCornerTightnessInnerRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeCornerTightnessOuterLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeCornerTightnessOuterRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLidCloseUpperLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookDownLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookDownRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookInLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookInRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookOutLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookOutRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookUpLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeLookUpRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyePupilsDilate",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyeSquintLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_EyeSquintRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_EyelidCloseLowerLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyelidCloseLowerRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyelidCloseUpperRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyelidOpenLowerLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyelidOpenLowerRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyelidOpenUpperLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EyelidOpenUpperRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EyeFullCompressionLeft",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EyeFullCompressionRight",
+      "category": "eye",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_ctrl_EyeCrossed",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeFullCompressionLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeFullCompressionRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookAuto",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookDownLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookDownRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookInLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookInRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookOutLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookOutRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookSide-Side",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookSide-SideLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookSide-SideRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookUp-Down",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookUp-DownLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookUp-DownRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookUpLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeLookUpRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeRestingFocalPoint",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeWide",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeWideLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyeWideRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyelidOpen-CloseLower",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyelidOpen-CloseLowerLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyelidOpen-CloseUpper",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyelidOpen-CloseUpperLeft",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyelidOpen-CloseUpperRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyelidOpenCloseLowerRight",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyesBlink",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EyesSquint",
+      "category": "eye",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "FACSDetails_facs_bs_JawChinCompression_HD2",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawChinCompression",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawClenchLeft",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawClenchRight",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawForward",
+      "category": "jaw",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_JawLeft",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawOpen",
+      "category": "jaw",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_JawOpenWide",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawRecess",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_JawRight",
+      "category": "jaw",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_ctrl_JawClench",
+      "category": "jaw",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_JawForward-Recess",
+      "category": "jaw",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_JawLeft-Right",
+      "category": "jaw",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthFrownLeft_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthFrownRight_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthPurseLowerLeft_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthPurseLowerRight_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthPurseUpperLeft_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthPurseUpperRight_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthShrugLowerLeft_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_MouthShrugLowerRight_HD2",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCloseLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCloseLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCloseUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCloseUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCompressLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCompressLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCompressUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCompressUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCornerMoveFwd-BackLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthCornerMoveFwd-BackRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthCornerMoveSide-SideLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthCornerMoveSide-SideRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthCornerMoveUp-DownLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthCornerMoveUp-DownRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthCornerTightnessLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCornerTightnessLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCornerTightnessUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthCornerTightnessUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthDimpleLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthDimpleRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthForward-BackMiddleLower",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthForward-BackMiddleUpper",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthFrownLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthFrownRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthFunnelLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthFunnelLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthFunnelUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthFunnelUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLipVolumeLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLipVolumeLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLipVolumeUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLipVolumeUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLipsSide-SideLower",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLipsSide-SideUpper",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthLowerDownLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthLowerDownRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthPressLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPressLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPressUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPressUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPurseLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPurseLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPurseUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthPurseUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthRollLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthRollLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthRollUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthRollUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthShrugLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthShrugLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthShrugUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthShrugUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthSmileLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthSmileRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthSmileWidenLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthSmileWidenRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyLowerCenter",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyLowerInnerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyLowerInnerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyLowerOuterLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyLowerOuterRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyUpperCenter",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyUpperInnerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyUpperInnerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyUpperOuterLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStickyUpperOuterRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthStretchLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthStretchRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthUp-Down",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_MouthUp-DownMiddleLower",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthUp-DownMiddleUpper",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthUpperUpLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_MouthUpperUpRight",
+      "category": "mouth",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_ctrl_Frown",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthClose",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthCompress",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthDimple",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthForward-Back",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthForward-BackLowerLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthForward-BackLowerRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthForward-BackUpperLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthForward-BackUpperRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthFrown",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthFunnel",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthLeft-Right",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthLowerDown",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthPress",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthPressLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthPressRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthPucker",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthPurse",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthRollLower",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthRollUpper",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthShrugLower",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthShrugUpper",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthSmile",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthSmileWiden",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthStickyLeft",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthStickyPower",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthStickyRight",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthStretch",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_MouthUpperUp",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_SmileFullFace",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_SmileOpenFullFace",
+      "category": "mouth",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLArmsFrntBck",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLArmsUpDwn",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLArmsUpDwnLeft",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLArmsUpDwnRight",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLBreastsIn-Out",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLBreastsSide-Side",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLBreastsUp-Down",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLHipBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLLegsSpread",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLLegsSpreadLeft",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLLegsSpreadRight",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLNeckHeadBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLNeckHeadSide-Side",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLNeckHeadTwist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLToesFanDownL",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLToesFanDownR",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLToesSpreadL",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLToesSpreadR",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlBigToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlBreastSide-Side",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlBreastUp-Down",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlFingersFist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlFingersGrasp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlFingersInOut",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlFootRoll",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlFootTwist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlHandChop",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlHandFist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlHandGrasp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlHandSpread",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlIndexBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlIndexToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlMidBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlMidToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlPinkyBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlPinkyToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlRingBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlRingToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlThumbBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlThumbFist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlThumbGrasp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLlThumbInOut",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrBigToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrBreastSide-Side",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrBreastUp-Down",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrFingersFist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrFingersGrasp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrFingersInOut",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrFootRoll",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrFootTwist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrHandChop",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrHandFist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrHandGrasp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrHandSpread",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrIndexBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrIndexToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrMidBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrMidToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrPinkyBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrPinkyToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrRingBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrRingToeBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrThumbBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrThumbFist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrThumbGrasp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "CTRLrThumbInOut",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "FACSDetails_facs_bs_BIU_BOULeft_HD2",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "FACSDetails_facs_bs_BIU_BOURight_HD2",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "body_bs_BreastsFlattenLeft",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "body_bs_BreastsFlattenRight",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "body_bs_BreastsHangForwardLeft",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "body_bs_BreastsHangForwardRight",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "body_ctrl_ArmsDownLeft",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ArmsDownRight",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ArmsFrntBckLeft",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ArmsFrntBckRight",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ArmsUpLeft",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ArmsUpRight",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_BodyHunched",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_BreastsFlatten",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_BreastsHangForward",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_HipBendBck",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_HipBendFwd",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_KneesUp",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_KneesUpLeft",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_KneesUpRight",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ShldrsFrntBck",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_ShouldersShrug",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_TorsoSlump",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_WaistBend",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_WaistSide",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_WaistTwist",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_lFingersIn",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_lFingersOut",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_lFootHeeledShoe",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_lFootTipToes",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_lHandRelax",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_lToesSmallCurl",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_rFingersIn",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_rFingersOut",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_rFootHeeledShoe",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_rFootTipToes",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_rHandRelax",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "body_ctrl_rToesSmallCurl",
+      "category": "other",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_cbs_BIUL_BDL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_BIUR_BDR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_BIU",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_BOUL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_CSL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_ELIL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_ELOL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_ESL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBL_NSL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_BIU",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_BOUR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_CSR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_ELIR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_ELOR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_ESR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_EBR_NSR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_JO_MF",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_JO_ML",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_JO_MR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_MP_CPL",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_MP_CPR",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_MP_MC",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_cbs_MP_MF",
+      "category": "other",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EarPullBackLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_EarPullBackRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NasalCompressLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NasalCompressRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NasalCreaseFlexLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NasalCreaseFlexRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_bs_NasalFlareLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NasalFlareRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NasalStretchLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NasalStretchRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NeckFlexLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NeckFlexRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NeckLarynxUp",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NeckMastoidFlexLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_NeckMastoidFlexRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_TongueIn",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_TongueNarrow",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_TongueOut",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_TongueRoll",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_TongueTipNarrow",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_bs_TongueTipWide",
+      "category": "other_facs",
+      "drives_shape_key_directly": true
+    },
+    {
+      "name": "facs_ctrl_Afraid",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Angry",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Concentrate",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Confused",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Contempt",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Desire",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_EarPullBack",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Fierce",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Glare",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Ignore",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Ill",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Incredulous",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Irritated",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NasalCompress",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NasalCreaseFlex",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NasalFlare",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NasalStretch",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NeckFlex",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_NeckSwallow",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Pain",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Pleased",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Pouty",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Sad",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Sarcastic",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Serious",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Snarl",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Suspicious",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_TongueLeft",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_TongueRight",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_TongueTipBend",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_TongueTwist",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_TongueUp",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_Wink",
+      "category": "other_facs",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vAA",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vEE",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vEH",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vER",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vF",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vIH",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vIY",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vK",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vL",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vM",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vOW",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vS",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vSH",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vT",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vTH",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vUW",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    },
+    {
+      "name": "facs_ctrl_vW",
+      "category": "viseme",
+      "drives_shape_key_directly": false
+    }
+  ]
+}

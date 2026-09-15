@@ -1,0 +1,12 @@
+{
+  "characters": {
+    "JasonCross": {
+      "name": "JasonCross",
+      "master_blend": "artifacts/JasonCross_imported.blend",
+      "collection": "Jasoncross_v1",
+      "outfits": [],
+      "hair": []
+    }
+  },
+  "environments": {}
+}

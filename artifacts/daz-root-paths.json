@@ -1,0 +1,24 @@
+{
+    "application": "save_root_paths",
+    "version": 0.1,
+    "content": [
+        "X:/working/scripting/published",
+        "X:/DAZ Libraries/Project",
+        "X:/DAZ Libraries/Manual",
+        "X:/DAZ Libraries/Yamaha_XS650_POSER_DS",
+        "X:/DAZ Libraries/ExternalOnly",
+        "Y:/working/BlueMoonFoundry/bmf-scarecrow-service/daz_scarecrow_project",
+        "X:/DAZNext/Applications/Data/DAZ 3D/My DAZ 3D Library"
+    ],
+    "builtin_mdl": [
+        "X:/DAZNext/Applications/64-bit/DAZ 3D/DAZStudio4/shaders/iray",
+        "C:/Users/ghirp/AppData/Roaming/DAZ 3D/Studio4/shaders/iray",
+        "C:/Users/ghirp/AppData/Roaming/DAZ 3D/Studio4/temp/shaders/iray"
+    ],
+    "import_dirs": [
+    ],
+    "mdl_dirs": [
+    ],
+    "builtin_content" : "C:/ProgramData/DAZ 3D/Studio4/DAZ Built-in Content",
+    "cloud_content" : "C:/Users/ghirp/OneDrive - Blue Moon Foundry/Documents/DAZ 3D"
+}

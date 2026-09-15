@@ -1,0 +1,2181 @@
+{
+  "armature": "Jason Cross",
+  "note": "Posable (non-'(drv)') pose bones on the Diffeomorphic-imported rig. Drive these via pose.bones[name].rotation_euler using EACH BONE'S OWN rotation_mode (do not force XYZ order -- DAZ's native per-bone axis order matters for multi-axis rotations). rotation_limits_radians, where present, come from a LIMIT_ROTATION constraint already on the bone (imported from DAZ's own joint limits) and are enforced automatically by Blender at evaluation time; null per-axis or null overall means unconstrained -- keep natural-language-driven rotations near documented anatomical ranges anyway to avoid clamped/ugly poses. has_corrective_layer=true bones additionally carry an additive '(drv)' JCM layer (mix_mode=BEFORE_FULL) that combines automatically -- safe to pose directly.",
+  "bone_count": 143,
+  "bones_with_rotation_limits": 90,
+  "bones": [
+    {
+      "name": "l_shoulder",
+      "parent": "spine4",
+      "category": "arm",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_upperarm",
+      "parent": "l_shoulder",
+      "category": "arm",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_upperarmtwist1",
+      "parent": "l_upperarm",
+      "category": "arm",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_upperarmtwist2",
+      "parent": "l_upperarm",
+      "category": "arm",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_shoulder",
+      "parent": "spine4",
+      "category": "arm",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_upperarm",
+      "parent": "r_shoulder",
+      "category": "arm",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_upperarmtwist1",
+      "parent": "r_upperarm",
+      "category": "arm",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_upperarmtwist2",
+      "parent": "r_upperarm",
+      "category": "arm",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "centerbrow",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "chin",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_browinner",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_browouter",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_cheek",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_cheeklower",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_ear",
+      "parent": "head",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.1745,
+          0.5236
+        ],
+        "y": [
+          -0.5236,
+          0.1745
+        ],
+        "z": [
+          -0.1745,
+          0.1745
+        ]
+      }
+    },
+    {
+      "name": "l_eye",
+      "parent": "head",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_eyelidlower",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.1745,
+          0.3491
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.0873,
+          0.0873
+        ]
+      }
+    },
+    {
+      "name": "l_eyelidupper",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.9599
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.0873,
+          0.0873
+        ]
+      }
+    },
+    {
+      "name": "l_forearm",
+      "parent": "l_upperarm",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_forearmtwist1",
+      "parent": "l_forearm",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_forearmtwist2",
+      "parent": "l_forearm",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_lipcorner",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_liplower",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_lipupper",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_nostril",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "liplowermiddle",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "lipuppermiddle",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "lowerjaw",
+      "parent": "head",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.1745,
+          0.6109
+        ],
+        "y": null,
+        "z": [
+          -0.2094,
+          0.2094
+        ]
+      }
+    },
+    {
+      "name": "lowerteeth",
+      "parent": "lowerjaw",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_browinner",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_browouter",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_cheek",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_cheeklower",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_ear",
+      "parent": "head",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.1745,
+          0.5236
+        ],
+        "y": [
+          -0.5236,
+          0.1745
+        ],
+        "z": [
+          -0.1745,
+          0.1745
+        ]
+      }
+    },
+    {
+      "name": "r_eye",
+      "parent": "head",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_eyelidlower",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.1745,
+          0.3491
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.0873,
+          0.0873
+        ]
+      }
+    },
+    {
+      "name": "r_eyelidupper",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.9599
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.0873,
+          0.0873
+        ]
+      }
+    },
+    {
+      "name": "r_forearm",
+      "parent": "r_upperarm",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_forearmtwist1",
+      "parent": "r_forearm",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_forearmtwist2",
+      "parent": "r_forearm",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_lipcorner",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_liplower",
+      "parent": "lowerfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_lipupper",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_nostril",
+      "parent": "upperfacerig",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "tongue01",
+      "parent": "lowerteeth",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          0.7854
+        ],
+        "y": [
+          -0.7854,
+          0.7854
+        ],
+        "z": [
+          -0.7854,
+          0.7854
+        ]
+      }
+    },
+    {
+      "name": "tongue02",
+      "parent": "tongue01",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          0.7854
+        ],
+        "y": [
+          -0.7854,
+          0.7854
+        ],
+        "z": [
+          -0.7854,
+          0.7854
+        ]
+      }
+    },
+    {
+      "name": "tongue03",
+      "parent": "tongue02",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          0.7854
+        ],
+        "y": [
+          -0.7854,
+          0.7854
+        ],
+        "z": [
+          -0.7854,
+          0.7854
+        ]
+      }
+    },
+    {
+      "name": "tongue04",
+      "parent": "tongue03",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          0.7854
+        ],
+        "y": [
+          -0.7854,
+          0.7854
+        ],
+        "z": [
+          -0.7854,
+          0.7854
+        ]
+      }
+    },
+    {
+      "name": "tongue05",
+      "parent": "tongue04",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          0.7854
+        ],
+        "y": [
+          -0.7854,
+          0.7854
+        ],
+        "z": [
+          -0.7854,
+          0.7854
+        ]
+      }
+    },
+    {
+      "name": "upperteeth",
+      "parent": "head",
+      "category": "face",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_bigtoe1",
+      "parent": "l_toes",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.1345,
+          0.7854
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_bigtoe2",
+      "parent": "l_bigtoe1",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          1.0472
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_foot",
+      "parent": "l_shin",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          1.1345
+        ],
+        "y": [
+          -0.7854,
+          0.5236
+        ],
+        "z": [
+          -0.1745,
+          0.4363
+        ]
+      }
+    },
+    {
+      "name": "l_metatarsal",
+      "parent": "l_foot",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4363,
+          0.6109
+        ],
+        "y": [
+          -0.4363,
+          0.3491
+        ],
+        "z": [
+          -0.1745,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_toes",
+      "parent": "l_foot",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.0472,
+          0.6981
+        ],
+        "y": [
+          -0.1745,
+          0.1745
+        ],
+        "z": null
+      }
+    },
+    {
+      "name": "r_bigtoe1",
+      "parent": "r_toes",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.1345,
+          0.7854
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_bigtoe2",
+      "parent": "r_bigtoe1",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          1.0472
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "r_foot",
+      "parent": "r_shin",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          1.1345
+        ],
+        "y": [
+          -0.5236,
+          0.7854
+        ],
+        "z": [
+          -0.4363,
+          0.1745
+        ]
+      }
+    },
+    {
+      "name": "r_metatarsal",
+      "parent": "r_foot",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4363,
+          0.6109
+        ],
+        "y": [
+          -0.3491,
+          0.4363
+        ],
+        "z": [
+          -0.2618,
+          0.1745
+        ]
+      }
+    },
+    {
+      "name": "r_toes",
+      "parent": "r_foot",
+      "category": "foot",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.0472,
+          0.6981
+        ],
+        "y": [
+          -0.1745,
+          0.1745
+        ],
+        "z": null
+      }
+    },
+    {
+      "name": "l_hand",
+      "parent": "l_forearm",
+      "category": "hand",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          0.4887
+        ],
+        "y": [
+          -0.1745,
+          0.1745
+        ],
+        "z": [
+          -1.2217,
+          1.3963
+        ]
+      }
+    },
+    {
+      "name": "l_hand_anchor",
+      "parent": "l_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_index1",
+      "parent": "l_indexmetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.8727,
+          1.6581
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2094,
+          0.3142
+        ]
+      }
+    },
+    {
+      "name": "l_index2",
+      "parent": "l_index1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2094,
+          1.8326
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_index3",
+      "parent": "l_index2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.3491,
+          1.5708
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_indexmetacarpal",
+      "parent": "l_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.0698,
+          0.0698
+        ],
+        "y": null,
+        "z": [
+          -0.0698,
+          0.0524
+        ]
+      }
+    },
+    {
+      "name": "l_indextoe1",
+      "parent": "l_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.1345,
+          0.7854
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_indextoe2",
+      "parent": "l_indextoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          1.0472
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_mid1",
+      "parent": "l_midmetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.8727,
+          1.6581
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2094,
+          0.2094
+        ]
+      }
+    },
+    {
+      "name": "l_mid2",
+      "parent": "l_mid1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2094,
+          1.8326
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_mid3",
+      "parent": "l_mid2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.3491,
+          1.5708
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_midmetacarpal",
+      "parent": "l_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.0698,
+          0.0698
+        ],
+        "y": null,
+        "z": [
+          -0.0524,
+          0.0524
+        ]
+      }
+    },
+    {
+      "name": "l_midtoe1",
+      "parent": "l_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.1345,
+          0.7854
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_midtoe2",
+      "parent": "l_midtoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          1.0472
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_pinky1",
+      "parent": "l_pinkymetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.8727,
+          1.6581
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.3142,
+          0.2094
+        ]
+      }
+    },
+    {
+      "name": "l_pinky2",
+      "parent": "l_pinky1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2094,
+          1.8326
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_pinky3",
+      "parent": "l_pinky2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.3491,
+          1.5708
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_pinkymetacarpal",
+      "parent": "l_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.0698,
+          0.0698
+        ],
+        "y": null,
+        "z": [
+          -0.0524,
+          0.0698
+        ]
+      }
+    },
+    {
+      "name": "l_pinkytoe1",
+      "parent": "l_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.1345,
+          0.7854
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.3491,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_pinkytoe2",
+      "parent": "l_pinkytoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          1.0472
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_ring1",
+      "parent": "l_ringmetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.8727,
+          1.6581
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2094,
+          0.2094
+        ]
+      }
+    },
+    {
+      "name": "l_ring2",
+      "parent": "l_ring1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2094,
+          1.8326
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_ring3",
+      "parent": "l_ring2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.3491,
+          1.5708
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_ringmetacarpal",
+      "parent": "l_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.0698,
+          0.0698
+        ],
+        "y": null,
+        "z": [
+          -0.0524,
+          0.0524
+        ]
+      }
+    },
+    {
+      "name": "l_ringtoe1",
+      "parent": "l_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.1345,
+          0.7854
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_ringtoe2",
+      "parent": "l_ringtoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          1.0472
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_thumb1",
+      "parent": "l_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4538,
+          0.6981
+        ],
+        "y": [
+          -0.2618,
+          0.7854
+        ],
+        "z": [
+          -0.3491,
+          0.3491
+        ]
+      }
+    },
+    {
+      "name": "l_thumb2",
+      "parent": "l_thumb1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          1.1345
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "l_thumb3",
+      "parent": "l_thumb2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.3491,
+          1.5708
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "r_hand",
+      "parent": "r_forearm",
+      "category": "hand",
+      "rotation_mode": "YXZ",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          0.4887
+        ],
+        "y": [
+          -0.1745,
+          0.1745
+        ],
+        "z": [
+          -1.3963,
+          1.2217
+        ]
+      }
+    },
+    {
+      "name": "r_hand_anchor",
+      "parent": "r_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_index1",
+      "parent": "r_indexmetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_index2",
+      "parent": "r_index1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_index3",
+      "parent": "r_index2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_indexmetacarpal",
+      "parent": "r_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_indextoe1",
+      "parent": "r_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          1.1345
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_indextoe2",
+      "parent": "r_indextoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.0472,
+          0.5236
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "r_mid1",
+      "parent": "r_midmetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_mid2",
+      "parent": "r_mid1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_mid3",
+      "parent": "r_mid2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_midmetacarpal",
+      "parent": "r_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_midtoe1",
+      "parent": "r_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          1.1345
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_midtoe2",
+      "parent": "r_midtoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.0472,
+          0.5236
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "r_pinky1",
+      "parent": "r_pinkymetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_pinky2",
+      "parent": "r_pinky1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_pinky3",
+      "parent": "r_pinky2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_pinkymetacarpal",
+      "parent": "r_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_pinkytoe1",
+      "parent": "r_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          1.1345
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.3491
+        ]
+      }
+    },
+    {
+      "name": "r_pinkytoe2",
+      "parent": "r_pinkytoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.0472,
+          0.5236
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "r_ring1",
+      "parent": "r_ringmetacarpal",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_ring2",
+      "parent": "r_ring1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_ring3",
+      "parent": "r_ring2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_ringmetacarpal",
+      "parent": "r_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_ringtoe1",
+      "parent": "r_toes",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.7854,
+          1.1345
+        ],
+        "y": [
+          -0.0873,
+          0.0873
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_ringtoe2",
+      "parent": "r_ringtoe1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -1.0472,
+          0.5236
+        ],
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "name": "r_thumb1",
+      "parent": "r_hand",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_thumb2",
+      "parent": "r_thumb1",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_thumb3",
+      "parent": "r_thumb2",
+      "category": "hand",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "hip",
+      "parent": null,
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_shin",
+      "parent": "l_thigh",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_thigh",
+      "parent": "pelvis",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_thightwist1",
+      "parent": "l_thigh",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_thightwist2",
+      "parent": "l_thigh",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "pelvis",
+      "parent": "hip",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_shin",
+      "parent": "r_thigh",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_thigh",
+      "parent": "pelvis",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_thightwist1",
+      "parent": "r_thigh",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_thightwist2",
+      "parent": "r_thigh",
+      "category": "leg",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_infraorbital",
+      "parent": "upperfacerig",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "l_pectoral",
+      "parent": "spine3",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "l_squint",
+      "parent": "upperfacerig",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "lowerfacerig",
+      "parent": "lowerjaw",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_infraorbital",
+      "parent": "upperfacerig",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "r_pectoral",
+      "parent": "spine3",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "r_squint",
+      "parent": "upperfacerig",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "upperfacerig",
+      "parent": "head",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null
+    },
+    {
+      "name": "head",
+      "parent": "neck2",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.5236,
+          0.4363
+        ],
+        "y": [
+          -0.384,
+          0.384
+        ],
+        "z": [
+          -0.3491,
+          0.3491
+        ]
+      }
+    },
+    {
+      "name": "neck1",
+      "parent": "spine4",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4363,
+          0.6981
+        ],
+        "y": [
+          -0.384,
+          0.384
+        ],
+        "z": [
+          -0.6981,
+          0.6981
+        ]
+      }
+    },
+    {
+      "name": "neck2",
+      "parent": "neck1",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4712,
+          0.4189
+        ],
+        "y": [
+          -0.384,
+          0.384
+        ],
+        "z": [
+          -0.1745,
+          0.1745
+        ]
+      }
+    },
+    {
+      "name": "spine1",
+      "parent": "hip",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.3491,
+          0.6109
+        ],
+        "y": [
+          -0.2618,
+          0.2618
+        ],
+        "z": [
+          -0.2618,
+          0.2618
+        ]
+      }
+    },
+    {
+      "name": "spine2",
+      "parent": "spine1",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4363,
+          0.6981
+        ],
+        "y": [
+          -0.3491,
+          0.3491
+        ],
+        "z": [
+          -0.4189,
+          0.4189
+        ]
+      }
+    },
+    {
+      "name": "spine3",
+      "parent": "spine2",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.4363,
+          0.6109
+        ],
+        "y": [
+          -0.2094,
+          0.2094
+        ],
+        "z": [
+          -0.3491,
+          0.3491
+        ]
+      }
+    },
+    {
+      "name": "spine4",
+      "parent": "spine3",
+      "category": "spine",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": true,
+      "rotation_limits_radians": {
+        "x": [
+          -0.2618,
+          0.2618
+        ],
+        "y": [
+          -0.1745,
+          0.1745
+        ],
+        "z": [
+          -0.1745,
+          0.1745
+        ]
+      }
+    }
+  ]
+}
