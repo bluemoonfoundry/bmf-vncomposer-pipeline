@@ -134,6 +134,7 @@ def author_variant(dbz_path, collection_name, kind, out_path, root_paths_path):
         else:
             survivors.append(obj)
 
+    duplicate_names = [obj.name for obj in duplicates]
     for obj in duplicates:
         data = obj.data
         bpy.data.objects.remove(obj, do_unlink=True)
@@ -149,7 +150,13 @@ def author_variant(dbz_path, collection_name, kind, out_path, root_paths_path):
     prefix = {"outfit": "Outfit_", "hair": "Hair_"}[kind]
     target_name = f"{prefix}{collection_name}"
     target = bpy.data.collections.new(target_name)
-    bpy.context.scene.collection.children.link(target)
+    # Nest under the character's own collection (not the scene root): worker.py's
+    # append_collection() pulls in exactly one named collection via
+    # bpy.data.libraries.load, so a variant collection only reaches the render
+    # scene -- and only then becomes visible to set_variant_visibility -- if it
+    # is a child of that collection.
+    character_collection = master_rig.users_collection[0]
+    character_collection.children.link(target)
     for obj in survivors:
         for coll in list(obj.users_collection):
             coll.objects.unlink(obj)
@@ -166,7 +173,7 @@ def author_variant(dbz_path, collection_name, kind, out_path, root_paths_path):
         bpy.data.collections.remove(coll)
 
     print("VARIANT_COLLECTION", target.name, "OBJECTS", [obj.name for obj in target.objects])
-    print("DUPLICATES_REMOVED", [obj.name for obj in duplicates])
+    print("DUPLICATES_REMOVED", duplicate_names)
 
     save_path = os.path.abspath(out_path) if out_path else bpy.data.filepath
     bpy.ops.wm.save_as_mainfile(filepath=save_path)

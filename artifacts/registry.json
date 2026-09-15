@@ -4,7 +4,7 @@
       "name": "JasonCross",
       "master_blend": "artifacts/JasonCross_imported.blend",
       "collection": "Jasoncross_v1",
-      "outfits": [],
+      "outfits": ["Outfit_WorkerUniform"],
       "hair": []
     }
   },
