@@ -39,3 +39,15 @@ blender -b -P blender/import_daz_artifact.py -- `
 ```
 
 The root paths are applied in memory for the headless Blender process that performs the import. This avoids the foreground-only settings-save context in Diffeomorphic 5.1.
+
+Author an outfit/hair variant into an existing master blend (fits the new DBZ's meshes to the character already in the scene and renames its collection to the `Outfit_<name>`/`Hair_<name>` convention `set_variant_visibility` expects, see `blender/worker.py`):
+
+```powershell
+blender -b artifacts/Character.blend -P blender/author_outfit_variant.py -- `
+  --dbz X:/path/to/Outfit.dbz `
+  --collection-name casual `
+  --kind outfit `
+  --out artifacts/Character_casual.blend
+```
+
+Omit `--out` to save the variant back into the master blend in place.
