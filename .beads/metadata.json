@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "scarecrow",
+  "project_id": "2defedef-f267-4f5b-a970-aba237dcfa5a"
+}
