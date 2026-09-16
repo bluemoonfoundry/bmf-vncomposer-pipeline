@@ -15,6 +15,11 @@ Install with `pip install -e .` (and `pip install -e '.[vision]'` for OpenCV). B
 
 Machine-specific Blender/DAZ paths and pinned integration versions are in [`config/toolchain.json`](config/toolchain.json). Follow [`docs/integration-setup.md`](docs/integration-setup.md) before attempting the first Diffeomorphic bake.
 
+The onboarded characters/outfits/hair/environments that make up the master
+cache are tracked in `artifacts/registry.json`; see
+[`docs/master_cache_conventions.md`](docs/master_cache_conventions.md) for
+its directory layout, collection naming, and versioning conventions.
+
 Example worker invocation:
 
 ```text
@@ -35,10 +40,13 @@ python scripts/sync_root_paths.py `
 blender -b -P blender/import_daz_artifact.py -- `
   --dbz X:/path/to/Character.dbz `
   --blend artifacts/Character.blend `
+  --collection-name Character `
   --root-paths artifacts/daz-root-paths.json
 ```
 
-The root paths are applied in memory for the headless Blender process that performs the import. This avoids the foreground-only settings-save context in Diffeomorphic 5.1.
+The root paths are applied in memory for the headless Blender process that performs the import. This avoids the foreground-only settings-save context in Diffeomorphic 5.1. `--collection-name` wraps the new content into one top-level collection under that name, matching what `scarecrow_pipeline/registry.py`'s `CharacterRecord.collection` and `blender/worker.py`'s `append_collection()` expect; omit it to keep the importer's own collection naming.
+
+`scripts/onboard_character.py` chains this whole sequence (root-path sync, DBZ export, import, and registry write) for onboarding a new character in one step.
 
 To produce the `.dbz` for a new outfit/hair variant in the first place, see
 [`docs/outfit-onboarding-workflow.md`](docs/outfit-onboarding-workflow.md):

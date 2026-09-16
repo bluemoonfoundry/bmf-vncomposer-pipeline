@@ -1,4 +1,14 @@
-"""Import a Diffeomorphic DBZ artifact in Blender background mode."""
+"""Import a Diffeomorphic DBZ artifact in Blender background mode.
+
+With --collection-name, the new top-level collection(s) DAZ's importer
+creates are wrapped (not flattened -- see collection_utils.py) into one
+collection named --collection-name, matching the bare-<CharacterName>
+convention scarecrow_pipeline/registry.py's CharacterRecord.collection and
+blender/worker.py's append_collection()/resolve_armature() expect. Wrapping
+rather than flattening preserves the nested collection structure DAZ's
+importer creates, since blender/author_outfit_variant.py later links
+Outfit_<name>/Hair_<name> variant collections as children of this one.
+"""
 
 import argparse
 import json
@@ -8,12 +18,28 @@ import sys
 import bpy
 
 
+def normalize_character_collection(collection_name, pre_root_children):
+    scene_root = bpy.context.scene.collection
+    new_top_level = [c for c in scene_root.children if c.name not in pre_root_children]
+    if not new_top_level:
+        raise RuntimeError(
+            f"No new top-level collection found after import; nothing to name {collection_name!r}"
+        )
+    target = bpy.data.collections.new(collection_name)
+    scene_root.children.link(target)
+    for collection in new_top_level:
+        scene_root.children.unlink(collection)
+        target.children.link(collection)
+    return target
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     parser = argparse.ArgumentParser()
     parser.add_argument("--dbz", required=True)
     parser.add_argument("--blend", required=True)
     parser.add_argument("--root-paths")
+    parser.add_argument("--collection-name")
     args = parser.parse_args(argv)
 
     from bl_ext.user_default import import_daz
@@ -25,6 +51,8 @@ def main():
         with open(args.root_paths, encoding="utf-8-sig") as handle:
             GS.readDazPaths(json.load(handle), None, True)
         print("ROOT_PATHS_LOADED", api.get_absolute_path("/data/daz 3d/built-in content/daz iray pbrskin/pbrskin.dsf"))
+
+    pre_root_children = {c.name for c in bpy.context.scene.collection.children}
 
     api.set_silent_mode(True)
     dbz = os.path.abspath(args.dbz)
@@ -51,6 +79,11 @@ def main():
     api.set_silent_mode(False)
     print("IMPORT_RESULT", result)
     print("OBJECTS", len(bpy.data.objects), "MESHES", len(bpy.data.meshes), "ARMATURES", sum(obj.type == "ARMATURE" for obj in bpy.data.objects))
+
+    if args.collection_name:
+        target = normalize_character_collection(args.collection_name, pre_root_children)
+        print("CHARACTER_COLLECTION", target.name)
+
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(args.blend))
 
 
