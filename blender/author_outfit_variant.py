@@ -29,17 +29,21 @@ matches how Diffeomorphic's own import naming behaves in practice.
 import argparse
 import json
 import os
-import re
 import sys
+from pathlib import Path
 
 import bpy
 
-DUP_SUFFIX_RE = re.compile(r"^(.*)\.\d{3}$")
-
-
-def strip_dup_suffix(name):
-    match = DUP_SUFFIX_RE.match(name)
-    return match.group(1) if match else name
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+from collection_utils import (
+    flatten_into_collection,
+    new_objects_since,
+    remove_empty_scratch_collections,
+    snapshot_names,
+    strip_dup_suffix,
+)
 
 
 def find_single_armature(objects):
@@ -105,20 +109,19 @@ def author_variant(dbz_path, collection_name, kind, out_path, root_paths_path):
         with open(root_paths_path, encoding="utf-8-sig") as handle:
             GS.readDazPaths(json.load(handle), None, True)
 
-    pre_object_names = {obj.name for obj in bpy.data.objects}
-    pre_collection_names = {coll.name for coll in bpy.data.collections}
+    pre_object_names, pre_collection_names = snapshot_names()
     master_rig = find_single_armature(bpy.data.objects)
 
     import_dbz(os.path.abspath(dbz_path))
 
-    new_objects = [obj for obj in bpy.data.objects if obj.name not in pre_object_names]
+    new_objects = new_objects_since(pre_object_names)
     new_rigs = [obj for obj in new_objects if obj.type == "ARMATURE"]
     if new_rigs:
         merge_into_master(master_rig, new_rigs)
 
     # merge_rigs deletes the rig(s) it folded in; re-read from bpy.data.objects
     # so the diff reflects what actually survived.
-    new_objects = [obj for obj in bpy.data.objects if obj.name not in pre_object_names]
+    new_objects = new_objects_since(pre_object_names)
 
     duplicates = []
     survivors = []
@@ -157,20 +160,11 @@ def author_variant(dbz_path, collection_name, kind, out_path, root_paths_path):
     # is a child of that collection.
     character_collection = master_rig.users_collection[0]
     character_collection.children.link(target)
-    for obj in survivors:
-        for coll in list(obj.users_collection):
-            coll.objects.unlink(obj)
-        target.objects.link(obj)
+    flatten_into_collection(survivors, target)
 
     # Clean up now-empty scratch collections the import created (e.g. its own
     # per-file grouping collection) so nothing orphaned is left behind.
-    for coll in list(bpy.data.collections):
-        if coll.name in pre_collection_names or coll is target or len(coll.objects) != 0:
-            continue
-        for parent in list(bpy.data.collections) + [bpy.context.scene.collection]:
-            if coll.name in parent.children:
-                parent.children.unlink(coll)
-        bpy.data.collections.remove(coll)
+    remove_empty_scratch_collections(pre_collection_names, keep=target)
 
     print("VARIANT_COLLECTION", target.name, "OBJECTS", [obj.name for obj in target.objects])
     print("DUPLICATES_REMOVED", duplicate_names)
