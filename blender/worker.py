@@ -38,7 +38,32 @@ def set_variant_visibility(prefixes, active_names):
             collection.hide_render = False
 
 
-def apply_expression(weights):
+def resolve_armature(character):
+    """Resolve the armature belonging to a specific character.
+
+    Multiple characters can be appended into the same scene (see
+    append_collection), each inside its own collection named after the
+    character. Scanning bpy.data.objects for the first ARMATURE is only
+    correct for a single-character scene; once a second character is
+    present it silently poses/expresses the wrong rig. `character` should
+    be the same identifier passed as request["character"] (the appended
+    collection name).
+    """
+    if not character:
+        raise ValueError("character identifier is required to resolve an armature")
+    collection = bpy.data.collections.get(character)
+    if collection is not None:
+        for obj in collection.all_objects:
+            if obj.type == "ARMATURE":
+                return obj
+    # Fallback for armatures not (yet) tracked via a matching collection name.
+    for obj in bpy.data.objects:
+        if obj.type == "ARMATURE" and (obj.name == character or obj.name.startswith(f"{character}_")):
+            return obj
+    return None
+
+
+def apply_expression(weights, character):
     """Drive Diffeomorphic FACS/morph controls by their raw property name.
 
     Diffeomorphic-imported meshes do not take posed shape-key values directly:
@@ -55,8 +80,9 @@ def apply_expression(weights):
     for driver re-evaluation, in background or foreground Blender. Each
     changed object/data block needs an explicit update_tag() call.
     """
-    armature = next((obj for obj in bpy.data.objects if obj.type == "ARMATURE"), None)
+    armature = resolve_armature(character)
     if armature is None:
+        print(f"WARNING: no armature found for character {character!r}; expression weights ignored.")
         return
     touched = set()
     for name, weight in weights.items():
@@ -77,7 +103,7 @@ def apply_expression(weights):
         bpy.context.view_layer.update()
 
 
-def apply_pose(pose):
+def apply_pose(pose, character):
     """Pose the imported Diffeomorphic rig directly in Blender.
 
     DAZ Studio is only used to source the base character once; all posing
@@ -91,8 +117,9 @@ def apply_pose(pose):
     """
     if not pose:
         return
-    armature = next((obj for obj in bpy.data.objects if obj.type == "ARMATURE"), None)
+    armature = resolve_armature(character)
     if armature is None:
+        print(f"WARNING: no armature found for character {character!r}; pose ignored.")
         return
 
     for bone_name, euler in pose.get("bone_rotations", {}).items():
@@ -198,8 +225,9 @@ def render(request):
     append_collection(request["master_blend"], request["character"])
     active = [name for name in (request.get("outfit"), request.get("hair")) if name]
     set_variant_visibility(["Outfit_", "Hair_"], active)
-    apply_expression(request.get("expression", {}).get("weights", {}))
-    apply_pose(request.get("pose"))
+    character = request["character"]
+    apply_expression(request.get("expression", {}).get("weights", {}), character)
+    apply_pose(request.get("pose"), character)
     configure_camera(request.get("camera", {}))
     configure_lighting(request.get("lighting", {}))
     add_shadow_catcher()
