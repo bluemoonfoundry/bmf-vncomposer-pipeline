@@ -6,7 +6,7 @@ This repository provides a small, headless-first pipeline for turning semantic V
 
 - `scarecrow_pipeline/schemas.py` — validated request and metadata models.
 - `scarecrow_pipeline/vision.py` — dependency-light background light estimation (Pillow, optional OpenCV).
-- `scripts/daz_export.py` — headless, timeout-safe export of a saved `.duf` scene to `.dbz` (see [`docs/outfit-onboarding-workflow.md`](docs/outfit-onboarding-workflow.md)).
+- `scripts/run_diffeomorphic_export.py` — export of a saved `.duf` scene to `.dbz` via a GUI-resident DazScriptServer (see [`docs/outfit-onboarding-workflow.md`](docs/outfit-onboarding-workflow.md)).
 - `blender/worker.py` — Blender 4.x background worker (`blender -b -P ... -- ...`).
 - `blender/compositor.py` — reusable compositor graph builder.
 - `schemas/*.json` — JSON Schema documents for external LLM/tool integrations.
@@ -42,8 +42,9 @@ The root paths are applied in memory for the headless Blender process that perfo
 
 To produce the `.dbz` for a new outfit/hair variant in the first place, see
 [`docs/outfit-onboarding-workflow.md`](docs/outfit-onboarding-workflow.md):
-build and save the scene in Daz Studio's GUI, then run `scripts/daz_export.py`
-against that saved `.duf` for a headless, dialog-free export.
+build and save the scene in Daz Studio's GUI, keep Daz Studio running, then
+run `scripts/run_diffeomorphic_export.py` against that saved `.duf` for a
+dialog-free export through the local DazScriptServer.
 
 Author an outfit/hair variant into an existing master blend (fits the new DBZ's meshes to the character already in the scene and renames its collection to the `Outfit_<name>`/`Hair_<name>` convention `set_variant_visibility` expects, see `blender/worker.py`):
 

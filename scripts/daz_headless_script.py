@@ -1,8 +1,10 @@
-"""Strip Diffeomorphic's interactive export dialog for headless invocation.
+"""Strip Diffeomorphic's interactive export dialog for scripted invocation.
 
-Shared by scripts/daz_export.py (CLI export against a saved .duf) and
-scripts/run_diffeomorphic_export.py (export via a live DazScriptServer).
-Has no dependency on dazpy or any live DAZ Studio connection.
+Used by scripts/run_diffeomorphic_export.py, which sends the patched script
+through a live, GUI-resident DazScriptServer -- the only supported export
+path (see scarecrow-n4c: standalone -noPrompt Daz Studio processes can wedge
+indefinitely with no automatic recovery, so that path was removed).
+Has no dependency on dazpy or any live DAZ Studio connection itself.
 """
 
 from __future__ import annotations
