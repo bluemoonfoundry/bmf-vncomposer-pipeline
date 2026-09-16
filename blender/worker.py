@@ -16,6 +16,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 from compositor import build_compositor
+from collection_utils import strip_dup_suffix
 
 
 def append_collection(master_blend, collection_name):
@@ -242,12 +243,130 @@ def render(request):
     bpy.ops.render.render(write_still=True)
 
 
+def character_variant_collections(character_collection):
+    """All collections nested under a character's own appended collection (its
+    Outfit_/Hair_ variants -- see author_outfit_variant.py), scoped to that one
+    character so a second character's variants can never be touched."""
+    found = []
+    stack = list(character_collection.children)
+    while stack:
+        child = stack.pop()
+        found.append(child)
+        stack.extend(child.children)
+    return found
+
+
+def set_character_variant_visibility(character_collection, prefixes, active_names):
+    """Like set_variant_visibility (used by the single-character render() path),
+    but scoped to one character's own collection tree. Blender auto-suffixes a
+    variant collection's name (e.g. "Outfit_Casual.001") when two characters
+    share a master_blend and therefore an identically-named variant, so names
+    are compared with the dup suffix stripped rather than by exact match.
+    """
+    for collection in character_variant_collections(character_collection):
+        if not any(collection.name.startswith(prefix) for prefix in prefixes):
+            continue
+        stripped = strip_dup_suffix(collection.name)
+        is_active = any(stripped == name or stripped.endswith(name) for name in active_names)
+        collection.hide_render = not is_active
+
+
+def place_character(collection, placement):
+    """Apply a CharacterPlacement's world-space transform to the top-level
+    (parent-less) objects of an appended character collection -- normally just
+    the armature, with meshes/props following it as parented children."""
+    members = set(collection.all_objects)
+    roots = [obj for obj in collection.all_objects if obj.parent is None or obj.parent not in members]
+    location = Vector(placement.get("location", [0.0, 0.0, 0.0]))
+    rotation = Vector(placement.get("rotation_euler", [0.0, 0.0, 0.0]))
+    scale = float(placement.get("scale", 1.0))
+    for obj in roots:
+        obj.location = location
+        obj.rotation_euler = rotation
+        obj.scale = (scale, scale, scale)
+
+
+def append_scene_character(placement):
+    """Append and configure one CharacterPlacement, isolated in its own
+    collection so its armature, morphs, and materials cannot cross-talk with
+    any other character already placed in the scene (scarecrow-tnf)."""
+    character = placement["character"]
+    if bpy.data.collections.get(character) is not None:
+        raise ValueError(
+            f"Character identifier {character!r} is already used by another "
+            "placement in this scene; each CharacterPlacement.character must "
+            "be unique so resolve_armature() cannot ambiguously match it."
+        )
+    collection = append_collection(placement["master_blend"], character)
+    active = [name for name in (placement.get("outfit"), placement.get("hair")) if name]
+    set_character_variant_visibility(collection, ["Outfit_", "Hair_"], active)
+    place_character(collection, placement)
+    apply_expression(placement.get("expression", {}).get("weights", {}), character)
+    apply_pose(placement.get("pose"), character)
+    return collection
+
+
+def resolve_environment_collection(name):
+    collection = bpy.data.collections.get(name)
+    if collection is None:
+        raise ValueError(
+            f"Environment collection {name!r} not found; it must already be "
+            "present in the base .blend (see blender/import_environment_asset.py)."
+        )
+    collection.hide_render = False
+    return collection
+
+
+def build_scene_background(background, output_path):
+    """Wire up the requested BackgroundSpec. image_plate reuses the same
+    AlphaOver compositor as the single-character path -- it composites
+    whatever the Render Layers node captured (all placed characters) over one
+    shared plate, so no per-character change is needed there. 3d_environment
+    skips 2D compositing entirely: the pre-imported environment collection
+    supplies the background directly in 3D, and the render is left opaque.
+    """
+    mode = background.get("mode", "image_plate")
+    if mode == "3d_environment":
+        resolve_environment_collection(background["environment_collection"])
+        return False
+    build_compositor(background.get("background_path"), output_path)
+    return bool(background.get("transparent", True))
+
+
+def render_scene(scene_request):
+    """Render a multi-character SceneRequest (scarecrow_pipeline/schemas.py).
+
+    Loads and places every CharacterPlacement into its own isolated
+    collection, applies the scene's shared camera/lighting, and handles
+    either BackgroundSpec mode. Alongside, not replacing, render() above.
+    """
+    for placement in scene_request["characters"]:
+        append_scene_character(placement)
+    configure_camera(scene_request.get("camera", {}))
+    configure_lighting(scene_request.get("lighting", {}))
+    background = scene_request.get("background") or {"mode": "image_plate"}
+    if background.get("mode", "image_plate") != "3d_environment":
+        add_shadow_catcher()
+    scene = bpy.context.scene
+    scene.render.engine = "CYCLES"
+    scene.cycles.samples = int(scene_request.get("render_samples", 64))
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.filepath = scene_request["output_path"]
+    scene.render.film_transparent = build_scene_background(background, scene_request["output_path"])
+    bpy.ops.wm.save_as_mainfile(filepath=scene_request["output_path"] + ".blend")
+    bpy.ops.render.render(write_still=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--request", required=True)
     args, _ = parser.parse_known_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else None)
     with open(args.request, encoding="utf-8") as handle:
-        render(json.load(handle))
+        request = json.load(handle)
+    if "characters" in request:
+        render_scene(request)
+    else:
+        render(request)
 
 
 if __name__ == "__main__":
