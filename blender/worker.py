@@ -202,7 +202,11 @@ def configure_camera(camera_data):
 def configure_lighting(lighting):
     world = bpy.context.scene.world or bpy.data.worlds.new("Scarecrow World")
     bpy.context.scene.world = world
-    world.use_nodes = True
+    if world.node_tree is None:
+        # World.use_nodes is deprecated (worlds have had mandatory node trees
+        # since Blender 4.0) and is slated for removal in 6.0; only touch it
+        # as a fallback for a world that genuinely lacks a node tree.
+        world.use_nodes = True
     world.node_tree.nodes["Background"].inputs["Color"].default_value = (*lighting.get("ambient_rgb", [0.5] * 3), 1.0)
     world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.35
     light_data = bpy.data.lights.get("Scarecrow_Key") or bpy.data.lights.new("Scarecrow_Key", "SUN")
