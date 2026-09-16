@@ -20,6 +20,14 @@ was actually written and is non-empty; if that check fails, fall back to
 running the export interactively from Daz Studio's File menu against the
 same saved scene.
 
+CONFIRMED (scarecrow-97w): on at least one real character+outfit scene, Daz
+Studio ran an initial Iray preview render and then went idle indefinitely
+before ever reaching the injected -script -- and subprocess.run's own
+`timeout` did NOT fire while the child sat idle-but-alive, requiring a
+manual process kill. The `timeout` argument here is not a reliable ceiling;
+see scarecrow-n4c for the follow-up (a hard external watchdog or an
+upstream fix is still needed).
+
 Usage: python scripts/daz_export.py --daz-exe DazStudio.exe --scene figure.duf --script export_to_blender.dsa --out cache
 """
 
@@ -34,6 +42,8 @@ from daz_headless_script import build_headless_script
 
 
 def export_scene(daz_exe: str, scene: Path, script: Path, output_dir: Path, timeout: int) -> Path:
+    scene = scene.resolve()
+    output_dir = output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     dbz_path = output_dir / (scene.stem + ".dbz")
     headless_source = build_headless_script(script.read_text(encoding="utf-8"), str(dbz_path))

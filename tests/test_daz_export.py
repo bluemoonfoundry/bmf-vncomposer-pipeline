@@ -63,6 +63,41 @@ def test_export_scene_writes_headless_script_and_returns_dbz_path(tmp_path, monk
     assert not headless_script_path.exists()
 
 
+def test_export_scene_resolves_relative_paths_to_absolute(tmp_path, monkeypatch):
+    # Regression test: a relative --scene/--out (as documented in
+    # outfit-onboarding-workflow.md) must resolve to an absolute path before
+    # being handed to Daz Studio, which runs with its own working directory
+    # and can't be relied on to share the caller's cwd.
+    script = _write_fake_script(tmp_path)
+    scene = tmp_path / "JasonCross_worker_uniform.duf"
+    scene.write_text("{}", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    relative_scene = Path("JasonCross_worker_uniform.duf")
+    relative_out = Path("out")
+
+    captured_commands = []
+
+    def fake_run(command, check, timeout, text, capture_output):
+        captured_commands.append(command)
+        headless_script_path = Path(command[command.index("-script") + 1])
+        assert headless_script_path.is_absolute()
+        source = headless_script_path.read_text(encoding="utf-8")
+        assert Path(tmp_path / "out").as_posix() in source.replace("\\\\", "/")
+        dbz_path = (tmp_path / "out") / "JasonCross_worker_uniform.dbz"
+        dbz_path.write_bytes(b"fake-dbz-bytes")
+        return SimpleNamespace(returncode=0, stderr="")
+
+    monkeypatch.setattr(daz_export.subprocess, "run", fake_run)
+
+    dbz_path = daz_export.export_scene(
+        daz_exe="DazStudio.exe", scene=relative_scene, script=script, output_dir=relative_out, timeout=60
+    )
+
+    assert dbz_path.is_absolute()
+    command = captured_commands[0]
+    assert str(scene) in command
+
+
 def test_export_scene_raises_when_dbz_never_written(tmp_path, monkeypatch):
     script = _write_fake_script(tmp_path)
     scene = tmp_path / "scene.duf"
