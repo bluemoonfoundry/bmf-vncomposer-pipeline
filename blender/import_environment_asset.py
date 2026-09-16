@@ -69,7 +69,7 @@ def import_daz_set(source_path, root_paths_path):
     result = bpy.ops.daz.easy_import_daz(
         directory=os.path.dirname(source_path),
         files=[{"name": os.path.basename(source_path)}],
-        fitMeshes="DBZFILE",
+        fitMeshes="UNIQUE",
         useMakePosable=False,
         useHead=False,
         useUnits=False,
