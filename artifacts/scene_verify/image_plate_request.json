@@ -1,0 +1,49 @@
+{
+  "characters": [
+    {
+      "character": "Jasoncross_v1",
+      "master_blend": "Y:/working/BlueMoonFoundry/bmf-scarecrow-service/artifacts/JasonCross_imported.blend",
+      "outfit": "Outfit_WorkerUniform",
+      "pose": {
+        "bone_rotations": {
+          "r_upperarm": [0.0, 0.0, 1.2]
+        }
+      },
+      "expression": {
+        "weights": {
+          "facs_bs_JawOpenWide": 0.8
+        }
+      },
+      "location": [-1.2, 0.0, 0.0],
+      "rotation_euler": [0.0, 0.0, 0.3]
+    },
+    {
+      "character": "JasonCross_B",
+      "master_blend": "Y:/working/BlueMoonFoundry/bmf-scarecrow-service/artifacts/JasonCross_B_imported.blend",
+      "outfit": "Outfit_WorkerUniform",
+      "pose": {
+        "bone_rotations": {
+          "l_upperarm": [0.0, 0.0, -1.2]
+        }
+      },
+      "expression": {
+        "weights": {
+          "facs_bs_JawOpenWide": 0.0
+        }
+      },
+      "location": [1.2, 0.0, 0.0],
+      "rotation_euler": [0.0, 0.0, -0.3]
+    }
+  ],
+  "camera": {
+    "location": [0.0, -9.0, 1.6],
+    "rotation_euler": [1.5708, 0.0, 0.0]
+  },
+  "background": {
+    "mode": "image_plate",
+    "background_path": null,
+    "transparent": true
+  },
+  "output_path": "Y:/working/BlueMoonFoundry/bmf-scarecrow-service/artifacts/scene_verify/image_plate_output.png",
+  "render_samples": 32
+}
