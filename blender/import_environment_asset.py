@@ -20,6 +20,7 @@ scarecrow_bbox_min/scarecrow_bbox_max custom properties on the collection.
 """
 
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -32,8 +33,6 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 REPO_ROOT = SCRIPT_DIR.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 from collection_utils import (
     flatten_into_collection,
@@ -41,7 +40,20 @@ from collection_utils import (
     remove_empty_scratch_collections,
     snapshot_names,
 )
-from scarecrow_pipeline.environment_asset import compute_bounding_box, resolve_handler
+
+# scarecrow_pipeline/environment_asset.py is intentionally bpy-free and has no
+# third-party dependencies, but importing it via the `scarecrow_pipeline`
+# package would trigger scarecrow_pipeline/__init__.py, which eagerly imports
+# schemas.py (requires pydantic). Blender's bundled Python has no pydantic, so
+# load the module directly from its file path instead, bypassing the package
+# __init__ entirely.
+_ENV_ASSET_SPEC = importlib.util.spec_from_file_location(
+    "environment_asset", REPO_ROOT / "scarecrow_pipeline" / "environment_asset.py"
+)
+_environment_asset = importlib.util.module_from_spec(_ENV_ASSET_SPEC)
+_ENV_ASSET_SPEC.loader.exec_module(_environment_asset)
+resolve_handler = _environment_asset.resolve_handler
+compute_bounding_box = _environment_asset.compute_bounding_box
 
 
 def import_daz_set(source_path, root_paths_path):
