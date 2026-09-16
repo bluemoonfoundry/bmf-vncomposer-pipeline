@@ -8,5 +8,27 @@
       "hair": []
     }
   },
-  "environments": {}
+  "environments": {
+    "AbandonedSubwayStation": {
+      "name": "AbandonedSubwayStation",
+      "source_path": "artifacts/dbz/AbandonedSubwayStation.dbz",
+      "source_type": "daz",
+      "blend_path": "artifacts/environment_onboarding/AbandonedSubwayStation.blend",
+      "collection": "Environment_AbandonedSubwayStation"
+    },
+    "LilExplorer": {
+      "name": "LilExplorer",
+      "source_path": "samples/lil_explorer/scene.gltf",
+      "source_type": "gltf",
+      "blend_path": "artifacts/environment_onboarding/LilExplorer.blend",
+      "collection": "Environment_LilExplorer"
+    },
+    "BusterDrone": {
+      "name": "BusterDrone",
+      "source_path": "samples/droid/source/model/BusterDrone.fbx",
+      "source_type": "fbx",
+      "blend_path": "artifacts/environment_onboarding/BusterDrone.blend",
+      "collection": "Environment_BusterDrone"
+    }
+  }
 }

@@ -1,6 +1,10 @@
 import pytest
 
-from scarecrow_pipeline.environment_asset import compute_bounding_box, resolve_handler
+from scarecrow_pipeline.environment_asset import (
+    SUFFIX_HANDLERS,
+    compute_bounding_box,
+    resolve_handler,
+)
 
 
 @pytest.mark.parametrize("source_path,expected", [
@@ -34,3 +38,12 @@ def test_compute_bounding_box_over_multiple_points():
 def test_compute_bounding_box_rejects_empty_input():
     with pytest.raises(ValueError, match="at least one point"):
         compute_bounding_box([])
+
+
+# This only asserts the dispatch table's own value set is complete and
+# correctly named. It does not (and cannot, since it would require bpy)
+# verify that import_environment_asset.py's import_native() if/elif chain
+# actually implements all four native handlers -- that wiring can only be
+# verified by reading import_native() alongside this test.
+def test_suffix_handlers_cover_daz_and_all_native_kinds():
+    assert set(SUFFIX_HANDLERS.values()) == {"daz", "fbx", "gltf", "obj", "usd"}

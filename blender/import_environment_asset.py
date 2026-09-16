@@ -135,6 +135,11 @@ def onboard_environment(source_path, collection_name, out_path, root_paths_path)
     if handler == "daz":
         import_daz_set(source_path, root_paths_path)
     else:
+        if root_paths_path:
+            print(
+                f"WARNING: --root-paths {root_paths_path!r} has no effect for native "
+                f"asset imports (handler={handler!r}); ignoring."
+            )
         import_native(source_path, handler)
 
     new_objects = new_objects_since(pre_object_names)

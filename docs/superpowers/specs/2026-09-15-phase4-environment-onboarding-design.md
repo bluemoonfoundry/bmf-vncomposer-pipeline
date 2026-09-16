@@ -88,7 +88,12 @@ Logic:
 2. Dispatch on `Path(source).suffix.lower()`:
    - `.dbz`, `.duf` → enable `bl_ext.user_default.import_daz`, optionally load
      `--root-paths` (same as `import_daz_artifact.py`), then
-     `bpy.ops.daz.easy_import_daz(..., fitMeshes="DBZFILE", useMakePosable=False, useHead=False, useUnits=False, useExpressions=False, useVisemes=False, useFacs=False, useFacsdetails=False, useFacsexpr=False, useBody=False, useMergeRigs=False, useMergeMaterials=True, useTransferClothes=False, useTransferFace=False, useTransferGeografts=False, useTransferHD=False)` —
+     `bpy.ops.daz.easy_import_daz(..., fitMeshes="UNIQUE" (DAZ's import_daz addon
+     documents `DBZFILE` as Characters-only, requiring a same-named `.dbz`
+     fitting file beside the source `.duf`; `UNIQUE`/`SHARED` are its
+     documented Environment-appropriate modes, and `UNIQUE` is used here since
+     it doesn't assume the environment's objects share instanced mesh data),
+     useMakePosable=False, useHead=False, useUnits=False, useExpressions=False, useVisemes=False, useFacs=False, useFacsdetails=False, useFacsexpr=False, useBody=False, useMergeRigs=False, useMergeMaterials=True, useTransferClothes=False, useTransferFace=False, useTransferGeografts=False, useTransferHD=False)` —
      posing/FACS/rig-merge options are all off since a set/prop has no
      posable figure to fit.
    - `.fbx` → `bpy.ops.import_scene.fbx(filepath=...)`
