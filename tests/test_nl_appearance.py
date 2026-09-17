@@ -218,3 +218,23 @@ def test_translate_appearance_uses_default_vocabulary_when_none_given():
     # the 1-bone fixture used elsewhere in this file -- a real bone name
     # proves load_default_vocabulary() was used, not an empty vocabulary.
     assert "l_upperarm" in client.calls[0]["user_prompt"]
+
+
+def test_anthropic_client_raises_helpful_error_without_optional_dependency():
+    """This repo's default install does not include the 'anthropic' package
+    (it's an optional extra) -- constructing AnthropicClient without it
+    installed must fail with a clear message, not a bare ModuleNotFoundError
+    from deep inside the client."""
+    import pytest
+
+    from scarecrow_pipeline.nl_appearance import AnthropicClient
+
+    try:
+        import anthropic  # noqa: F401
+    except ImportError:
+        pass
+    else:
+        pytest.skip("anthropic is installed in this environment; nothing to verify here")
+
+    with pytest.raises(ImportError, match="anthropic"):
+        AnthropicClient()

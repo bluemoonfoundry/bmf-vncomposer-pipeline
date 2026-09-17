@@ -170,3 +170,45 @@ def translate_appearance(
         f"Could not produce a valid appearance for {character!r} after "
         f"{MAX_ATTEMPTS} attempt(s): " + "; ".join(errors)
     )
+
+
+class AnthropicClient:
+    """LLMClient backed by the Anthropic Messages API's structured (tool-use)
+    output.
+
+    Requires the optional 'llm' dependency group
+    (`pip install -e '.[llm]'`) and an ANTHROPIC_API_KEY environment
+    variable. Never imported at module scope by nl_appearance.py or
+    exercised by the default test suite -- see
+    test_anthropic_client_raises_helpful_error_without_optional_dependency.
+    """
+
+    def __init__(self, model: str = "claude-sonnet-5", max_tokens: int = 4096):
+        try:
+            import anthropic
+        except ImportError as exc:
+            raise ImportError(
+                "AnthropicClient requires the 'anthropic' package -- install "
+                "with `pip install -e '.[llm]'`"
+            ) from exc
+        self._client = anthropic.Anthropic()
+        self._model = model
+        self._max_tokens = max_tokens
+
+    def complete_json(self, system_prompt: str, user_prompt: str, json_schema: dict) -> dict:
+        response = self._client.messages.create(
+            model=self._model,
+            max_tokens=self._max_tokens,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}],
+            tools=[{
+                "name": "emit_appearance",
+                "description": "Emit the translated pose and expression.",
+                "input_schema": json_schema,
+            }],
+            tool_choice={"type": "tool", "name": "emit_appearance"},
+        )
+        for block in response.content:
+            if block.type == "tool_use":
+                return block.input
+        raise AppearanceTranslationError("Anthropic response contained no tool_use block")

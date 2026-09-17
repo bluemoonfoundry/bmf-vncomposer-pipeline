@@ -11,6 +11,7 @@ dependencies = ["pydantic>=2.5", "Pillow>=10.0"]
 
 [project.optional-dependencies]
 vision = ["opencv-python>=4.8"]
+llm = ["anthropic>=0.40"]
 dev = ["pytest>=7.4"]
 
 [tool.setuptools.packages.find]
