@@ -2,8 +2,11 @@ from pathlib import Path
 
 from scarecrow_pipeline.nl_appearance import (
     AppearanceVocabulary,
+    AppearanceResult,
+    AppearanceTranslationError,
     load_default_vocabulary,
 )
+from scarecrow_pipeline.schemas import FACSExpression, PosePayload
 
 
 def test_load_default_vocabulary_reads_real_docs():
@@ -32,3 +35,24 @@ def test_appearance_vocabulary_rejects_unknown_field():
 
     with pytest.raises(ValidationError):
         AppearanceVocabulary(bones=[], facs_controls=[], extra_field="nope")
+
+
+def test_appearance_result_defaults_to_no_pose_and_empty_expression():
+    result = AppearanceResult()
+
+    assert result.pose is None
+    assert result.expression == FACSExpression(weights={})
+
+
+def test_appearance_result_accepts_pose_and_expression():
+    result = AppearanceResult(
+        pose=PosePayload(bone_rotations={"hip": [0.0, 0.0, 0.0]}),
+        expression=FACSExpression(weights={"facs_bs_JawOpenWide": 0.5}),
+    )
+
+    assert result.pose.bone_rotations == {"hip": [0.0, 0.0, 0.0]}
+    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.5}
+
+
+def test_appearance_translation_error_is_a_runtime_error():
+    assert issubclass(AppearanceTranslationError, RuntimeError)

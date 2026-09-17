@@ -14,8 +14,38 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from scarecrow_pipeline.schemas import FACSExpression, PosePayload
+
+MAX_ATTEMPTS = 2
+
+
+class AppearanceTranslationError(RuntimeError):
+    """Raised when the LLM's output cannot be validated after MAX_ATTEMPTS tries."""
+
+
+class AppearanceResult(BaseModel):
+    """One description's translated appearance.
+
+    Assign both fields straight onto a CharacterPlacement/RenderRequest
+    (scarecrow_pipeline/schemas.py), which carry pose and expression as
+    the same two side-by-side fields.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+    pose: PosePayload | None = None
+    expression: FACSExpression = Field(default_factory=FACSExpression)
+
+
+class LLMClient(Protocol):
+    def complete_json(self, system_prompt: str, user_prompt: str, json_schema: dict) -> dict:
+        """Return a dict parsed from the model's structured-output response,
+        constrained to json_schema. Raises on a provider/network failure;
+        does not itself validate the dict against the schema."""
+        ...
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_POSABLE_BONES_PATH = REPO_ROOT / "docs" / "posable_bones.json"
