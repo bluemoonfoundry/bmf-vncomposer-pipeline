@@ -12,6 +12,7 @@ docs/superpowers/specs/2026-09-16-nl-appearance-translator-design.md.
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Protocol
@@ -143,6 +144,79 @@ def _vocabulary_errors(result: AppearanceResult, vocab: AppearanceVocabulary) ->
     return errors
 
 
+_OPEN_MAP_VOCAB_TITLES = {
+    "Bone Rotations": "bone_names",
+    "Ik Targets": "bone_names",
+    "Weights": "facs_control_names",
+}
+
+
+def _localize_open_maps(schema: dict, vocab: AppearanceVocabulary) -> dict:
+    """Rewrite bone_rotations/ik_targets/weights from an open-ended
+    ``additionalProperties``-keyed map into explicit properties for every
+    name in the vocabulary.
+
+    Providers' native structured-output modes (e.g. Anthropic's
+    output_config.format) require additionalProperties: false on every
+    object schema and have no way to express "any key, this value shape" --
+    but the vocabulary is fully known before the call, so there's no need
+    for an open-ended map in the first place. This also stops the model
+    from inventing names outside the vocabulary, on any provider.
+    """
+    field_vocab = {
+        title: getattr(vocab, attr) for title, attr in _OPEN_MAP_VOCAB_TITLES.items()
+    }
+
+    def walk(node):
+        if isinstance(node, dict):
+            title = node.get("title")
+            if title in field_vocab and isinstance(node.get("additionalProperties"), dict):
+                value_schema = walk(node["additionalProperties"])
+                node = dict(node)
+                node["properties"] = {name: value_schema for name in sorted(field_vocab[title])}
+                node["additionalProperties"] = False
+                return node
+            return {key: walk(value) for key, value in node.items()}
+        if isinstance(node, list):
+            return [walk(item) for item in node]
+        return node
+
+    return walk(copy.deepcopy(schema))
+
+
+_UNSUPPORTED_SCHEMA_KEYWORDS = {
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "minItems",
+    "maxItems",
+}
+
+
+def _strip_unsupported_keywords(schema: dict) -> dict:
+    """Drop JSON Schema keywords that Anthropic's native structured-output
+    validator rejects outright rather than merely ignoring: numeric
+    "minimum"/"maximum" on a "number" property, and "minItems"/"maxItems"
+    values other than 0 or 1 on an array (so the exactly-3-length XYZ
+    triples used throughout can't be expressed either). These become
+    prompt-only guidance -- see build_system_prompt -- instead of
+    schema-enforced constraints."""
+
+    def walk(node):
+        if isinstance(node, dict):
+            return {
+                key: walk(value)
+                for key, value in node.items()
+                if key not in _UNSUPPORTED_SCHEMA_KEYWORDS
+            }
+        if isinstance(node, list):
+            return [walk(item) for item in node]
+        return node
+
+    return walk(copy.deepcopy(schema))
+
+
 def translate_appearance(
     character: str,
     description: str,
@@ -151,7 +225,9 @@ def translate_appearance(
     vocab: AppearanceVocabulary | None = None,
 ) -> AppearanceResult:
     vocab = vocab or load_default_vocabulary()
-    schema = AppearanceResult.model_json_schema()
+    schema = _strip_unsupported_keywords(
+        _localize_open_maps(AppearanceResult.model_json_schema(), vocab)
+    )
     system_prompt = build_system_prompt()
     base_user_prompt = build_user_prompt(character, description, vocab)
 

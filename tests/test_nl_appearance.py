@@ -267,10 +267,10 @@ def test_anthropic_client_raises_helpful_error_without_optional_dependency(monke
 def test_anthropic_client_smoke_translates_a_real_description():
     """Not run by default -- makes one real Anthropic API call.
 
-    Proves the $ref/$defs-bearing JSON Schema from
-    AppearanceResult.model_json_schema() is actually accepted as
-    input_schema by the real API, which no other test in this file
-    verifies (FakeLLMClient never touches the real API).
+    Proves the $ref/$defs-bearing, vocabulary-localized JSON Schema built
+    by translate_appearance (see _localize_open_maps) is actually accepted
+    as output_config.format.schema by the real API, which no other test in
+    this file verifies (FakeLLMClient never touches the real API).
     """
     from scarecrow_pipeline.nl_appearance import AnthropicClient, translate_appearance
 
