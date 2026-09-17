@@ -56,10 +56,18 @@ class PosePayload(BaseModel):
 
 class SceneLighting(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    direction: Vector3 = [0.0, -1.0, -1.0]
+    # direction is the direction light TRAVELS. The default camera looks
+    # from (0, -8, 1.6) toward the origin, so a subject facing the camera
+    # has an outward normal pointing toward -Y -- a light must travel
+    # toward +Y to hit that face rather than the subject's back. intensity
+    # is a Cycles Sun's irradiance in W/m^2; 15.0 was picked empirically
+    # (blender/worker.py's configure_lighting) to produce a visibly lit
+    # render, since Blender's own new-sun default of 1.0 is nearly black
+    # once combined with this scene's 0.35-strength ambient world light.
+    direction: Vector3 = [0.0, 1.0, -1.0]
     color_rgb: tuple[Weight, Weight, Weight] = (1.0, 1.0, 1.0)
     ambient_rgb: tuple[Weight, Weight, Weight] = (0.5, 0.5, 0.5)
-    intensity: float = Field(default=1.0, ge=0.0)
+    intensity: float = Field(default=15.0, ge=0.0)
     confidence: Weight = 0.0
 
 

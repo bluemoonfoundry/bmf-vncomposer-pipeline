@@ -142,7 +142,7 @@
         "direction": {
           "default": [
             0.0,
-            -1.0,
+            1.0,
             -1.0
           ],
           "items": {
@@ -210,7 +210,7 @@
           "type": "array"
         },
         "intensity": {
-          "default": 1.0,
+          "default": 15.0,
           "minimum": 0.0,
           "title": "Intensity",
           "type": "number"
