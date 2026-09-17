@@ -56,3 +56,38 @@ def test_appearance_result_accepts_pose_and_expression():
 
 def test_appearance_translation_error_is_a_runtime_error():
     assert issubclass(AppearanceTranslationError, RuntimeError)
+
+
+from scarecrow_pipeline.nl_appearance import (
+    build_retry_prompt,
+    build_system_prompt,
+    build_user_prompt,
+)
+
+
+def test_build_system_prompt_mentions_radians_and_vocabulary_only():
+    prompt = build_system_prompt()
+
+    assert "radians" in prompt.lower()
+    assert "vocabulary" in prompt.lower()
+
+
+def test_build_user_prompt_includes_character_description_and_vocab():
+    vocab = AppearanceVocabulary(
+        bones=[{"name": "hip", "category": "spine"}],
+        facs_controls=[{"name": "facs_bs_JawOpenWide", "category": "jaw"}],
+    )
+
+    prompt = build_user_prompt("JasonCross", "standing at ease, arms crossed", vocab)
+
+    assert "JasonCross" in prompt
+    assert "standing at ease, arms crossed" in prompt
+    assert "hip" in prompt
+    assert "facs_bs_JawOpenWide" in prompt
+
+
+def test_build_retry_prompt_lists_each_error():
+    prompt = build_retry_prompt(["bone_name 'l_uparm' is not in the vocabulary"])
+
+    assert "l_uparm" in prompt
+    assert "not in the vocabulary" in prompt

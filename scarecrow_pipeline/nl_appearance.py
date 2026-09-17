@@ -81,3 +81,46 @@ def load_default_vocabulary(
     bones = json.loads(Path(posable_bones_path).read_text(encoding="utf-8"))["bones"]
     facs_controls = json.loads(Path(facs_controls_path).read_text(encoding="utf-8"))["controls"]
     return AppearanceVocabulary(bones=bones, facs_controls=facs_controls)
+
+
+def build_system_prompt() -> str:
+    return (
+        "You translate a natural-language character appearance description "
+        "into precise pose and facial-expression control values for a "
+        "Diffeomorphic-imported DAZ character rig in Blender.\n\n"
+        "Respond with a single JSON object matching the given schema:\n"
+        "- pose.bone_rotations: a mapping of bone name to an [x, y, z] Euler "
+        "rotation IN RADIANS. Each bone has its OWN native rotation axis "
+        "order (see each bone's rotation_mode in the provided vocabulary) "
+        "-- do not assume XYZ order; provide the three angles as if applied "
+        "in that bone's own order.\n"
+        "- pose.ik_targets and pose.look_at_target are optional -- omit "
+        "them entirely unless the description specifically calls for an IK "
+        "target or a gaze direction.\n"
+        "- expression.weights: a mapping of FACS/morph control name to a "
+        "weight in [0.0, 1.0].\n"
+        "- Only use bone and control names that appear in the provided "
+        "vocabulary, exactly as spelled there. Never invent a name.\n"
+        "- Omit any field you have no information for rather than guessing "
+        "a value."
+    )
+
+
+def build_user_prompt(character: str, description: str, vocab: AppearanceVocabulary) -> str:
+    return (
+        f"Character: {character}\n"
+        f"Description: {description}\n\n"
+        f"Available pose bones (JSON):\n{json.dumps(vocab.bones)}\n\n"
+        f"Available expression controls (JSON):\n{json.dumps(vocab.facs_controls)}"
+    )
+
+
+def build_retry_prompt(errors: list[str]) -> str:
+    joined = "\n".join(f"- {error}" for error in errors)
+    return (
+        "Your previous response was invalid:\n"
+        f"{joined}\n\n"
+        "Respond again with a corrected JSON object matching the same "
+        "schema, using only bone/control names from the vocabulary already "
+        "provided."
+    )
