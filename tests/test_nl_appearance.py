@@ -91,3 +91,130 @@ def test_build_retry_prompt_lists_each_error():
 
     assert "l_uparm" in prompt
     assert "not in the vocabulary" in prompt
+
+
+from scarecrow_pipeline.nl_appearance import translate_appearance
+
+
+class FakeLLMClient:
+    """Returns queued dict responses (or raises a queued exception) in order."""
+
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.calls = []
+
+    def complete_json(self, system_prompt, user_prompt, json_schema):
+        self.calls.append({
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+            "json_schema": json_schema,
+        })
+        response = self._responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
+
+
+def _small_vocab():
+    return AppearanceVocabulary(
+        bones=[{"name": "hip", "category": "spine", "rotation_mode": "XYZ"}],
+        facs_controls=[{"name": "facs_bs_JawOpenWide", "category": "jaw"}],
+    )
+
+
+def test_translate_appearance_happy_path():
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}},
+            "expression": {"weights": {"facs_bs_JawOpenWide": 0.3}},
+        }
+    ])
+
+    result = translate_appearance("JasonCross", "leaning forward slightly, mouth open", client, vocab=vocab)
+
+    assert result.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
+    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.3}
+    assert len(client.calls) == 1
+
+
+def test_translate_appearance_retries_once_on_invalid_bone_name_then_succeeds():
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {"bone_rotations": {"l_uparm": [0.1, 0.0, 0.0]}},
+            "expression": {"weights": {}},
+        },
+        {
+            "pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}},
+            "expression": {"weights": {}},
+        },
+    ])
+
+    result = translate_appearance("JasonCross", "leaning forward", client, vocab=vocab)
+
+    assert result.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
+    assert len(client.calls) == 2
+    assert "l_uparm" in client.calls[1]["user_prompt"]
+    assert "not in the vocabulary" in client.calls[1]["user_prompt"]
+
+
+def test_translate_appearance_raises_after_exhausted_retries():
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {"pose": {"bone_rotations": {"l_uparm": [0.0, 0.0, 0.0]}}, "expression": {"weights": {}}},
+        {"pose": {"bone_rotations": {"l_uparm": [0.0, 0.0, 0.0]}}, "expression": {"weights": {}}},
+    ])
+
+    import pytest
+    from scarecrow_pipeline.nl_appearance import AppearanceTranslationError
+
+    with pytest.raises(AppearanceTranslationError, match="l_uparm"):
+        translate_appearance("JasonCross", "leaning forward", client, vocab=vocab)
+
+    assert len(client.calls) == 2
+
+
+def test_translate_appearance_rejects_vocabulary_invalid_control_even_though_schema_valid():
+    """A response can be perfectly valid PosePayload/FACSExpression JSON --
+    Pydantic alone has no way to know 'facs_bs_MadeUpControl' isn't real."""
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {"pose": None, "expression": {"weights": {"facs_bs_MadeUpControl": 1.0}}},
+        {"pose": None, "expression": {"weights": {"facs_bs_MadeUpControl": 1.0}}},
+    ])
+
+    import pytest
+    from scarecrow_pipeline.nl_appearance import AppearanceTranslationError
+
+    with pytest.raises(AppearanceTranslationError, match="facs_bs_MadeUpControl"):
+        translate_appearance("JasonCross", "jaw wide open", client, vocab=vocab)
+
+
+def test_translate_appearance_retries_on_schema_invalid_response():
+    """A response that fails Pydantic validation entirely (e.g. a weight out
+    of [0,1]) also triggers the retry path, not just vocabulary mismatches."""
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {"pose": None, "expression": {"weights": {"facs_bs_JawOpenWide": 2.5}}},
+        {"pose": None, "expression": {"weights": {"facs_bs_JawOpenWide": 0.5}}},
+    ])
+
+    result = translate_appearance("JasonCross", "jaw open", client, vocab=vocab)
+
+    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.5}
+    assert len(client.calls) == 2
+
+
+def test_translate_appearance_uses_default_vocabulary_when_none_given():
+    client = FakeLLMClient([
+        {"pose": None, "expression": {"weights": {}}},
+    ])
+
+    result = translate_appearance("JasonCross", "neutral", client)
+
+    assert result.expression.weights == {}
+    # The default vocabulary (docs/posable_bones.json) is much larger than
+    # the 1-bone fixture used elsewhere in this file -- a real bone name
+    # proves load_default_vocabulary() was used, not an empty vocabulary.
+    assert "l_upperarm" in client.calls[0]["user_prompt"]

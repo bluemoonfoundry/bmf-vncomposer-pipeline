@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from scarecrow_pipeline.schemas import FACSExpression, PosePayload
 
@@ -123,4 +123,50 @@ def build_retry_prompt(errors: list[str]) -> str:
         "Respond again with a corrected JSON object matching the same "
         "schema, using only bone/control names from the vocabulary already "
         "provided."
+    )
+
+
+def _vocabulary_errors(result: AppearanceResult, vocab: AppearanceVocabulary) -> list[str]:
+    errors = []
+    if result.pose is not None:
+        for bone_name in result.pose.bone_rotations:
+            if bone_name not in vocab.bone_names:
+                errors.append(f"bone_name {bone_name!r} is not in the vocabulary")
+        for bone_name in result.pose.ik_targets:
+            if bone_name not in vocab.bone_names:
+                errors.append(f"ik_targets bone_name {bone_name!r} is not in the vocabulary")
+    for control_name in result.expression.weights:
+        if control_name not in vocab.facs_control_names:
+            errors.append(f"expression control {control_name!r} is not in the vocabulary")
+    return errors
+
+
+def translate_appearance(
+    character: str,
+    description: str,
+    client: LLMClient,
+    *,
+    vocab: AppearanceVocabulary | None = None,
+) -> AppearanceResult:
+    vocab = vocab or load_default_vocabulary()
+    schema = AppearanceResult.model_json_schema()
+    system_prompt = build_system_prompt()
+    base_user_prompt = build_user_prompt(character, description, vocab)
+
+    errors: list[str] = []
+    for attempt in range(MAX_ATTEMPTS):
+        prompt = base_user_prompt if attempt == 0 else base_user_prompt + "\n\n" + build_retry_prompt(errors)
+        raw = client.complete_json(system_prompt, prompt, schema)
+        try:
+            result = AppearanceResult.model_validate(raw)
+        except ValidationError as exc:
+            errors = [str(exc)]
+            continue
+        errors = _vocabulary_errors(result, vocab)
+        if not errors:
+            return result
+
+    raise AppearanceTranslationError(
+        f"Could not produce a valid appearance for {character!r} after "
+        f"{MAX_ATTEMPTS} attempt(s): " + "; ".join(errors)
     )
