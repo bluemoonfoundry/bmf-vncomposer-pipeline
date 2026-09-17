@@ -90,16 +90,19 @@ def build_system_prompt() -> str:
         "into precise pose and facial-expression control values for a "
         "Diffeomorphic-imported DAZ character rig in Blender.\n\n"
         "Respond with a single JSON object matching the given schema:\n"
-        "- pose.bone_rotations: a mapping of bone name to an [x, y, z] Euler "
-        "rotation IN RADIANS. Each bone has its OWN native rotation axis "
-        "order (see each bone's rotation_mode in the provided vocabulary) "
-        "-- do not assume XYZ order; provide the three angles as if applied "
-        "in that bone's own order.\n"
+        "- pose.bone_rotations: a list of {name, value} entries, one per "
+        "bone you're setting, where name is the bone name and value is an "
+        "[x, y, z] Euler rotation IN RADIANS. Each bone has its OWN native "
+        "rotation axis order (see each bone's rotation_mode in the "
+        "provided vocabulary) -- do not assume XYZ order; provide the "
+        "three angles as if applied in that bone's own order.\n"
         "- pose.ik_targets and pose.look_at_target are optional -- omit "
         "them entirely unless the description specifically calls for an IK "
-        "target or a gaze direction.\n"
-        "- expression.weights: a mapping of FACS/morph control name to a "
-        "weight in [0.0, 1.0].\n"
+        "target or a gaze direction. ik_targets is also a list of {name, "
+        "value} entries (value is an [x, y, z] location).\n"
+        "- expression.weights: a list of {name, value} entries, one per "
+        "FACS/morph control you're setting, where value is a weight in "
+        "[0.0, 1.0].\n"
         "- Only use bone and control names that appear in the provided "
         "vocabulary, exactly as spelled there. Never invent a name.\n"
         "- Omit any field you have no information for rather than guessing "
@@ -153,15 +156,20 @@ _OPEN_MAP_VOCAB_TITLES = {
 
 def _localize_open_maps(schema: dict, vocab: AppearanceVocabulary) -> dict:
     """Rewrite bone_rotations/ik_targets/weights from an open-ended
-    ``additionalProperties``-keyed map into explicit properties for every
-    name in the vocabulary.
+    ``additionalProperties``-keyed map into a JSON array of {name, value}
+    objects, with "name" constrained to an enum of the vocabulary.
 
     Providers' native structured-output modes (e.g. Anthropic's
     output_config.format) require additionalProperties: false on every
-    object schema and have no way to express "any key, this value shape" --
-    but the vocabulary is fully known before the call, so there's no need
-    for an open-ended map in the first place. This also stops the model
-    from inventing names outside the vocabulary, on any provider.
+    object schema and have no way to express "any key, this value shape".
+    The obvious fix -- emit one named property per vocabulary entry -- was
+    tried first, but at this project's real vocabulary size (143 bones,
+    446 FACS controls) it produces ~700+ duplicated property schemas and
+    Anthropic rejects the compiled result as "too large". A single enum
+    listed once, reused by one item schema, stays small regardless of
+    vocabulary size. The response is converted back into dict form by
+    _pairs_to_dicts before AppearanceResult validation, so PosePayload/
+    FACSExpression and every other consumer never see this wire shape.
     """
     field_vocab = {
         title: getattr(vocab, attr) for title, attr in _OPEN_MAP_VOCAB_TITLES.items()
@@ -172,16 +180,45 @@ def _localize_open_maps(schema: dict, vocab: AppearanceVocabulary) -> dict:
             title = node.get("title")
             if title in field_vocab and isinstance(node.get("additionalProperties"), dict):
                 value_schema = walk(node["additionalProperties"])
-                node = dict(node)
-                node["properties"] = {name: value_schema for name in sorted(field_vocab[title])}
-                node["additionalProperties"] = False
-                return node
+                item_schema = {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string", "enum": sorted(field_vocab[title])},
+                        "value": value_schema,
+                    },
+                    "required": ["name", "value"],
+                    "additionalProperties": False,
+                }
+                array_schema = {"type": "array", "items": item_schema}
+                if "description" in node:
+                    array_schema["description"] = node["description"]
+                return array_schema
             return {key: walk(value) for key, value in node.items()}
         if isinstance(node, list):
             return [walk(item) for item in node]
         return node
 
     return walk(copy.deepcopy(schema))
+
+
+def _pairs_to_dicts(raw: dict) -> dict:
+    """Reverse _localize_open_maps: convert the {name, value}-array wire
+    shape the LLM actually returned back into the dict shape
+    AppearanceResult/PosePayload/FACSExpression expect."""
+    raw = copy.deepcopy(raw)
+
+    def pairs_to_dict(pairs):
+        return {pair["name"]: pair["value"] for pair in pairs}
+
+    pose = raw.get("pose")
+    if isinstance(pose, dict):
+        for field in ("bone_rotations", "ik_targets"):
+            if isinstance(pose.get(field), list):
+                pose[field] = pairs_to_dict(pose[field])
+    expression = raw.get("expression")
+    if isinstance(expression, dict) and isinstance(expression.get("weights"), list):
+        expression["weights"] = pairs_to_dict(expression["weights"])
+    return raw
 
 
 _UNSUPPORTED_SCHEMA_KEYWORDS = {
@@ -239,7 +276,7 @@ def translate_appearance(
         prompt = base_user_prompt if attempt == 0 else base_user_prompt + "\n\n" + build_retry_prompt(errors)
         raw = client.complete_json(system_prompt, prompt, schema)
         try:
-            result = AppearanceResult.model_validate(raw)
+            result = AppearanceResult.model_validate(_pairs_to_dicts(raw))
         except ValidationError as exc:
             errors = [str(exc)]
             continue

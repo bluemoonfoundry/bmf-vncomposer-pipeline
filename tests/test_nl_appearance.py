@@ -140,6 +140,47 @@ def test_translate_appearance_happy_path():
     assert len(client.calls) == 1
 
 
+def test_translate_appearance_converts_name_value_pair_wire_shape():
+    """The schema sent to the LLM represents bone_rotations/ik_targets/
+    weights as arrays of {name, value} pairs (see _localize_open_maps),
+    not dicts -- a real provider response comes back in that shape and
+    must be converted before AppearanceResult validation."""
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {"bone_rotations": [{"name": "hip", "value": [0.1, 0.0, 0.0]}]},
+            "expression": {"weights": [{"name": "facs_bs_JawOpenWide", "value": 0.3}]},
+        }
+    ])
+
+    result = translate_appearance("JasonCross", "leaning forward slightly, mouth open", client, vocab=vocab)
+
+    assert result.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
+    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.3}
+
+
+def test_localize_open_maps_emits_array_of_pairs_not_one_property_per_vocab_name():
+    """Regression test for the "compiled grammar is too large" failure hit
+    against the real API with the production vocabulary (143 bones, 446
+    FACS controls): the schema must stay small regardless of vocabulary
+    size, so bone_rotations/weights/ik_targets become a single array
+    schema with an enum, not one named property per vocabulary entry."""
+    from scarecrow_pipeline.nl_appearance import AppearanceResult, _localize_open_maps
+
+    vocab = _small_vocab()
+    schema = _localize_open_maps(AppearanceResult.model_json_schema(), vocab)
+
+    bone_rotations_schema = schema["$defs"]["PosePayload"]["properties"]["bone_rotations"]
+    assert bone_rotations_schema["type"] == "array"
+    name_schema = bone_rotations_schema["items"]["properties"]["name"]
+    assert name_schema["enum"] == ["hip"]
+    assert bone_rotations_schema["items"]["additionalProperties"] is False
+
+    weights_schema = schema["$defs"]["FACSExpression"]["properties"]["weights"]
+    assert weights_schema["type"] == "array"
+    assert weights_schema["items"]["properties"]["name"]["enum"] == ["facs_bs_JawOpenWide"]
+
+
 def test_translate_appearance_retries_once_on_invalid_bone_name_then_succeeds():
     vocab = _small_vocab()
     client = FakeLLMClient([
