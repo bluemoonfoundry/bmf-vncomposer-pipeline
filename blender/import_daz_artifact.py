@@ -41,6 +41,13 @@ def normalize_character_collection(collection_name, pre_import_container, pre_ch
 
 
 def main():
+    # Always invoked against Blender's default startup scene (no --blend to
+    # load from); the factory Cube/Camera/Light would otherwise sit unused
+    # in pre_import_container, and get pulled into the imported collection
+    # by normalize_character_collection() if DAZ's importer happens to
+    # target that same collection.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     parser = argparse.ArgumentParser()
     parser.add_argument("--dbz", required=True)

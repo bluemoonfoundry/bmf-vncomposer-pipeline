@@ -362,6 +362,13 @@ def render_scene(scene_request):
 
 
 def main():
+    # generate_sprite_set.py launches this against Blender's default startup
+    # scene (see its module docstring), which otherwise leaves the default
+    # Cube/Camera/Light sitting in the render -- render()/configure_camera()/
+    # configure_lighting() build their own named objects and never reuse or
+    # remove those defaults.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--request", required=True)
     args, _ = parser.parse_known_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else None)
