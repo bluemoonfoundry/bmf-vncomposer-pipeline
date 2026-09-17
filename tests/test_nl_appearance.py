@@ -1,3 +1,7 @@
+import os
+
+import pytest
+
 from scarecrow_pipeline.nl_appearance import (
     AppearanceVocabulary,
     AppearanceResult,
@@ -233,21 +237,49 @@ def test_translate_appearance_propagates_client_exception_without_retry():
     assert len(client.calls) == 1
 
 
-def test_anthropic_client_raises_helpful_error_without_optional_dependency():
+def test_anthropic_client_raises_helpful_error_without_optional_dependency(monkeypatch):
     """This repo's default install does not include the 'anthropic' package
     (it's an optional extra) -- constructing AnthropicClient without it
     installed must fail with a clear message, not a bare ModuleNotFoundError
-    from deep inside the client."""
+    from deep inside the client.
+
+    Setting sys.modules["anthropic"] = None forces the next `import anthropic`
+    to raise ImportError, regardless of whether the real package happens to
+    be installed in this environment (e.g. as a transitive dependency of an
+    unrelated package) -- this makes the test deterministic everywhere.
+    """
+    import sys
+
     import pytest
 
     from scarecrow_pipeline.nl_appearance import AnthropicClient
 
-    try:
-        import anthropic  # noqa: F401
-    except ImportError:
-        pass
-    else:
-        pytest.skip("anthropic is installed in this environment; nothing to verify here")
+    monkeypatch.setitem(sys.modules, "anthropic", None)
 
     with pytest.raises(ImportError, match="anthropic"):
         AnthropicClient()
+
+
+@pytest.mark.skipif(
+    os.environ.get("RUN_ANTHROPIC_SMOKE_TEST") != "1" or not os.environ.get("ANTHROPIC_API_KEY"),
+    reason="opt-in smoke test: set RUN_ANTHROPIC_SMOKE_TEST=1 and ANTHROPIC_API_KEY to run",
+)
+def test_anthropic_client_smoke_translates_a_real_description():
+    """Not run by default -- makes one real Anthropic API call.
+
+    Proves the $ref/$defs-bearing JSON Schema from
+    AppearanceResult.model_json_schema() is actually accepted as
+    input_schema by the real API, which no other test in this file
+    verifies (FakeLLMClient never touches the real API).
+    """
+    from scarecrow_pipeline.nl_appearance import AnthropicClient, translate_appearance
+
+    vocab = AppearanceVocabulary(
+        bones=[{"name": "hip", "category": "spine", "rotation_mode": "XYZ"}],
+        facs_controls=[{"name": "facs_bs_JawOpenWide", "category": "jaw"}],
+    )
+    client = AnthropicClient()
+
+    result = translate_appearance("JasonCross", "standing at ease", client, vocab=vocab)
+
+    assert isinstance(result, AppearanceResult)
