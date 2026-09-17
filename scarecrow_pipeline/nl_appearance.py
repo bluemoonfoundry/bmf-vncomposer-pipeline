@@ -178,17 +178,23 @@ def translate_appearance(
 
 
 class AnthropicClient:
-    """LLMClient backed by the Anthropic Messages API's structured (tool-use)
-    output.
+    """LLMClient backed by the Anthropic Messages API's native structured
+    outputs (`output_config.format`), not forced tool-use -- this call has
+    no tool surface of its own, just a JSON Schema-constrained text response,
+    which is the currently recommended mechanism for pure JSON extraction.
 
     Requires the optional 'llm' dependency group
     (`pip install -e '.[llm]'`) and an ANTHROPIC_API_KEY environment
     variable. Never imported at module scope by nl_appearance.py or
     exercised by the default test suite -- see
     test_anthropic_client_raises_helpful_error_without_optional_dependency.
+
+    Defaults to the most capable current model and a non-streaming-safe
+    max_tokens, per current Anthropic guidance: prefer the top-tier model
+    and let the caller downgrade for cost, rather than pre-downgrading.
     """
 
-    def __init__(self, model: str = "claude-sonnet-5", max_tokens: int = 4096):
+    def __init__(self, model: str = "claude-opus-5", max_tokens: int = 16000):
         try:
             import anthropic
         except ImportError as exc:
@@ -206,14 +212,11 @@ class AnthropicClient:
             max_tokens=self._max_tokens,
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
-            tools=[{
-                "name": "emit_appearance",
-                "description": "Emit the translated pose and expression.",
-                "input_schema": json_schema,
-            }],
-            tool_choice={"type": "tool", "name": "emit_appearance"},
+            output_config={"format": {"type": "json_schema", "schema": json_schema}},
         )
-        for block in response.content:
-            if block.type == "tool_use":
-                return block.input
-        raise RuntimeError("Anthropic response contained no tool_use block")
+        # output_config.format guarantees the first content block is text
+        # containing valid JSON matching json_schema.
+        text = next((block.text for block in response.content if block.type == "text"), None)
+        if text is None:
+            raise RuntimeError("Anthropic response contained no text block")
+        return json.loads(text)
