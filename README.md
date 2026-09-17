@@ -7,6 +7,7 @@ This repository provides a small, headless-first pipeline for turning semantic V
 - `scarecrow_pipeline/schemas.py` — validated request and metadata models.
 - `scarecrow_pipeline/vision.py` — dependency-light background light estimation (Pillow, optional OpenCV).
 - `scarecrow_pipeline/nl_appearance.py` — translates a natural-language appearance description into a validated `PosePayload`/`FACSExpression` pair via a provider-agnostic `LLMClient`; `AnthropicClient` (optional `pip install -e '.[llm]'`, `ANTHROPIC_API_KEY`) is the one concrete implementation.
+- `scripts/apply_appearance.py` — CLI that translates a natural-language description (via `nl_appearance.translate_appearance`) and applies it to an onboarded character by invoking `blender/worker.py`, the same one-subprocess-per-request pattern `scripts/generate_sprite_set.py` uses.
 - `scripts/run_diffeomorphic_export.py` — export of a saved `.duf` scene to `.dbz` via a GUI-resident DazScriptServer (see [`docs/outfit-onboarding-workflow.md`](docs/outfit-onboarding-workflow.md)).
 - `blender/worker.py` — Blender 4.x background worker (`blender -b -P ... -- ...`).
 - `blender/compositor.py` — reusable compositor graph builder.
