@@ -22,6 +22,10 @@ from scarecrow_pipeline.schemas import FACSExpression, PosePayload
 
 MAX_ATTEMPTS = 2
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_POSABLE_BONES_PATH = REPO_ROOT / "docs" / "posable_bones.json"
+DEFAULT_FACS_CONTROLS_PATH = REPO_ROOT / "docs" / "facs_controls.json"
+
 
 class AppearanceTranslationError(RuntimeError):
     """Raised when the LLM's output cannot be validated after MAX_ATTEMPTS tries."""
@@ -46,10 +50,6 @@ class LLMClient(Protocol):
         constrained to json_schema. Raises on a provider/network failure;
         does not itself validate the dict against the schema."""
         ...
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_POSABLE_BONES_PATH = REPO_ROOT / "docs" / "posable_bones.json"
-DEFAULT_FACS_CONTROLS_PATH = REPO_ROOT / "docs" / "facs_controls.json"
 
 
 class AppearanceVocabulary(BaseModel):
@@ -128,15 +128,17 @@ def build_retry_prompt(errors: list[str]) -> str:
 
 def _vocabulary_errors(result: AppearanceResult, vocab: AppearanceVocabulary) -> list[str]:
     errors = []
+    bone_names = vocab.bone_names
+    facs_control_names = vocab.facs_control_names
     if result.pose is not None:
         for bone_name in result.pose.bone_rotations:
-            if bone_name not in vocab.bone_names:
+            if bone_name not in bone_names:
                 errors.append(f"bone_name {bone_name!r} is not in the vocabulary")
         for bone_name in result.pose.ik_targets:
-            if bone_name not in vocab.bone_names:
+            if bone_name not in bone_names:
                 errors.append(f"ik_targets bone_name {bone_name!r} is not in the vocabulary")
     for control_name in result.expression.weights:
-        if control_name not in vocab.facs_control_names:
+        if control_name not in facs_control_names:
             errors.append(f"expression control {control_name!r} is not in the vocabulary")
     return errors
 
@@ -155,6 +157,9 @@ def translate_appearance(
 
     errors: list[str] = []
     for attempt in range(MAX_ATTEMPTS):
+        # LLMClient.complete_json is single-turn (no conversation history), so
+        # a retry is folded into one user-turn prompt rather than the design
+        # spec's literal system/user/assistant/user multi-turn shape.
         prompt = base_user_prompt if attempt == 0 else base_user_prompt + "\n\n" + build_retry_prompt(errors)
         raw = client.complete_json(system_prompt, prompt, schema)
         try:
@@ -211,4 +216,4 @@ class AnthropicClient:
         for block in response.content:
             if block.type == "tool_use":
                 return block.input
-        raise AppearanceTranslationError("Anthropic response contained no tool_use block")
+        raise RuntimeError("Anthropic response contained no tool_use block")

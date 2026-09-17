@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from scarecrow_pipeline.nl_appearance import (
     AppearanceVocabulary,
     AppearanceResult,
@@ -218,6 +216,21 @@ def test_translate_appearance_uses_default_vocabulary_when_none_given():
     # the 1-bone fixture used elsewhere in this file -- a real bone name
     # proves load_default_vocabulary() was used, not an empty vocabulary.
     assert "l_upperarm" in client.calls[0]["user_prompt"]
+
+
+def test_translate_appearance_propagates_client_exception_without_retry():
+    """A client/provider-level failure (e.g. a network error) is not a
+    validation failure -- it must propagate immediately on the first
+    attempt rather than being swallowed into a retry."""
+    vocab = _small_vocab()
+    client = FakeLLMClient([RuntimeError("network down")])
+
+    import pytest
+
+    with pytest.raises(RuntimeError, match="network down"):
+        translate_appearance("JasonCross", "leaning forward", client, vocab=vocab)
+
+    assert len(client.calls) == 1
 
 
 def test_anthropic_client_raises_helpful_error_without_optional_dependency():
