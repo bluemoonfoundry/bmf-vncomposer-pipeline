@@ -34,7 +34,10 @@ class FakeVisionClient:
 
 def _small_vocab():
     return AppearanceVocabulary(
-        bones=[{"name": "hip", "category": "spine", "rotation_mode": "XYZ"}],
+        bones=[
+            {"name": "hip", "category": "spine", "rotation_mode": "XYZ"},
+            {"name": "r_forearm", "category": "arm", "rotation_mode": "XYZ"},
+        ],
         facs_controls=[],
     )
 
@@ -110,6 +113,50 @@ def test_run_with_critique_retries_with_corrective_context_then_passes(tmp_path)
     assert outcome["attempts"] == 2
     # The critique from attempt 1 must be folded into attempt 2's translate call.
     assert "arms are not crossed" in translate_client.calls[1]["user_prompt"]
+
+
+def test_run_with_critique_feeds_previous_ik_and_pole_targets_back_numerically(tmp_path):
+    vocab = _small_vocab()
+    translate_client = FakeLLMClient([
+        {
+            "pose": {
+                "ik_targets": {"r_forearm": [0.3, -0.1, 1.2]},
+                "pole_targets": {"r_forearm": [-0.3, -0.15, 0.95]},
+            },
+            "expression": {"weights": {}},
+        },
+        {
+            "pose": {
+                "ik_targets": {"r_forearm": [0.08, -0.03, 1.15]},
+                "pole_targets": {"r_forearm": [-0.3, -0.15, 0.95]},
+            },
+            "expression": {"weights": {}},
+        },
+    ])
+    vision_client = FakeVisionClient([
+        PoseCritique(matches_description=False, critique="right arm is out too far, not crossed"),
+        PoseCritique(matches_description=True, critique="looks right now"),
+    ])
+    render_fn = _fake_render_fn(tmp_path / "out.png")
+
+    outcome = run_with_critique(
+        "JasonCross",
+        "arms crossed",
+        translate_client=translate_client,
+        vision_client=vision_client,
+        render_fn=render_fn,
+        vocab=vocab,
+        max_attempts=2,
+    )
+
+    assert outcome["status"] == "ok"
+    retry_prompt = translate_client.calls[1]["user_prompt"]
+    # The retry must include the previous attempt's actual numeric targets,
+    # not just the prose critique.
+    assert "[0.3, -0.1, 1.2]" in retry_prompt
+    assert "[-0.3, -0.15, 0.95]" in retry_prompt
+    assert "ik_targets" in retry_prompt
+    assert "pole_targets" in retry_prompt
 
 
 def test_run_with_critique_returns_best_effort_after_exhausting_attempts(tmp_path):

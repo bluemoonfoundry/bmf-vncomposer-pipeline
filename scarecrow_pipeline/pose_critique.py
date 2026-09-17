@@ -12,6 +12,7 @@ call on a mismatch, up to a bounded number of attempts.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -47,6 +48,38 @@ class RenderOutcome:
 
 
 RenderFn = Callable[[AppearanceResult, int], RenderOutcome]
+
+
+def _describe_previous_targets(result: AppearanceResult) -> str:
+    """Render the previous attempt's numeric ik_targets/pole_targets as
+    corrective context for the next translate_appearance() call.
+
+    Without this, a critique retry only sees prose (e.g. "arms are not
+    crossed") and re-derives ik_targets/pole_targets from scratch with no
+    memory of where it placed them last time -- so each attempt is an
+    independent guess rather than a correction, and there's no guarantee
+    attempt N+1 converges any closer than attempt N. Handing back the
+    actual [x, y, z] world-space points lets the LLM nudge specific
+    numbers instead of re-guessing blind.
+    """
+    if result.pose is None:
+        return ""
+    parts = []
+    if result.pose.ik_targets:
+        parts.append(f"ik_targets: {json.dumps(result.pose.ik_targets)}")
+    if result.pose.pole_targets:
+        parts.append(f"pole_targets: {json.dumps(result.pose.pole_targets)}")
+    if not parts:
+        return ""
+    return (
+        "\nThe previous attempt's pose used these numeric world-space targets "
+        "(end-effector/pole bone name -> [x, y, z]):\n"
+        + "\n".join(parts)
+        + "\nAdjust these specific numeric values to address the critique above "
+        "-- nudge them toward the correct position rather than discarding them "
+        "and guessing brand-new coordinates from scratch, unless the critique "
+        "implies a fundamentally different approach is needed."
+    )
 
 
 def run_with_critique(
@@ -99,6 +132,7 @@ def run_with_critique(
         extra_context = (
             "A previous attempt at this description was rendered and critiqued as NOT "
             f"matching it: {critique.critique}\nAdjust the pose to address this critique."
+            + _describe_previous_targets(result)
         )
 
     return {
