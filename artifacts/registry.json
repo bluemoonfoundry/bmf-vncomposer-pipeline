@@ -11,7 +11,7 @@
     },
     "AbbyMorgan": {
       "name": "AbbyMorgan",
-      "master_blend": "Y:\\working\\BlueMoonFoundry\\bmf-scarecrow-service\\artifacts\\AbbyMorgan_imported.blend",
+      "master_blend": "artifacts/AbbyMorgan_imported.blend",
       "collection": "AbbyMorgan",
       "outfits": [],
       "hair": []
