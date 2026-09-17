@@ -1,4 +1,4 @@
-# Scarecrow VN rendering pipeline
+# bmf-vncomposer-pipeline
 
 This repository provides a small, headless-first pipeline for turning semantic VN scene data into Blender renders. Daz Studio is an offline authoring/export step; Blender owns runtime posing, lighting, Cycles rendering, and compositing.
 
