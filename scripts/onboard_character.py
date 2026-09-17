@@ -61,6 +61,18 @@ def _resolve_absolute(path_str: str | Path) -> Path:
     return path.resolve() if path.is_absolute() else (REPO_ROOT / path).resolve()
 
 
+def _registry_path_str(path: Path) -> str:
+    """Store paths under REPO_ROOT as relative, matching the existing registry convention.
+
+    An absolute path baked into registry.json breaks the moment the repo is
+    moved or checked out on another machine (see AbbyMorgan/scarecrow-k1e).
+    """
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def stage_dbz_for_fitting(dbz_path: Path) -> Path:
     """Copy dbz_path next to the source .duf it was exported from.
 
@@ -162,7 +174,7 @@ def onboard_character(
     registry = Registry.load(registry_path) if registry_path else Registry.load()
     registry.upsert_character(CharacterRecord(
         name=character,
-        master_blend=str(blend_path),
+        master_blend=_registry_path_str(blend_path),
         collection=collection_name,
     ))
     registry.save(registry_path) if registry_path else registry.save()
