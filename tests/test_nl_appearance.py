@@ -19,6 +19,18 @@ def test_load_default_vocabulary_reads_real_docs():
     assert any(name.startswith("facs_") for name in vocab.facs_control_names)
 
 
+def test_load_default_vocabulary_includes_rest_pose_landmarks():
+    """scarecrow-57h: the LLM needs a spatial reference frame to compute
+    ik_targets/pole_targets -- every bone must carry its rest-pose head/tail
+    position in the same world-space coordinate system those fields use."""
+    vocab = load_default_vocabulary()
+
+    l_shoulder = next(bone for bone in vocab.bones if bone["name"] == "l_shoulder")
+    assert "rest_head_world" in l_shoulder
+    assert "rest_tail_world" in l_shoulder
+    assert len(l_shoulder["rest_head_world"]) == 3
+
+
 def test_load_default_vocabulary_accepts_explicit_paths(tmp_path):
     bones_path = tmp_path / "bones.json"
     bones_path.write_text('{"bones": [{"name": "hip", "category": "spine"}]}', encoding="utf-8")
@@ -72,6 +84,14 @@ def test_build_system_prompt_mentions_radians_and_vocabulary_only():
 
     assert "radians" in prompt.lower()
     assert "vocabulary" in prompt.lower()
+
+
+def test_build_system_prompt_explains_ik_and_pole_targets():
+    prompt = build_system_prompt()
+
+    assert "pole_targets" in prompt
+    assert "ik_targets" in prompt
+    assert "rest_head_world" in prompt
 
 
 def test_build_user_prompt_includes_character_description_and_vocab():
@@ -179,6 +199,74 @@ def test_localize_open_maps_emits_array_of_pairs_not_one_property_per_vocab_name
     weights_schema = schema["$defs"]["FACSExpression"]["properties"]["weights"]
     assert weights_schema["type"] == "array"
     assert weights_schema["items"]["properties"]["name"]["enum"] == ["facs_bs_JawOpenWide"]
+
+
+def test_translate_appearance_converts_pole_targets_name_value_pair_wire_shape():
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {
+                "ik_targets": [{"name": "hip", "value": [0.1, 0.2, 0.3]}],
+                "pole_targets": [{"name": "hip", "value": [0.0, -0.1, 0.2]}],
+            },
+            "expression": {"weights": {}},
+        }
+    ])
+
+    result = translate_appearance("JasonCross", "reaching forward", client, vocab=vocab)
+
+    assert result.pose.ik_targets == {"hip": [0.1, 0.2, 0.3]}
+    assert result.pose.pole_targets == {"hip": [0.0, -0.1, 0.2]}
+
+
+def test_localize_open_maps_localizes_pole_targets_too():
+    from scarecrow_pipeline.nl_appearance import AppearanceResult, _localize_open_maps
+
+    vocab = _small_vocab()
+    schema = _localize_open_maps(AppearanceResult.model_json_schema(), vocab)
+
+    pole_targets_schema = schema["$defs"]["PosePayload"]["properties"]["pole_targets"]
+    assert pole_targets_schema["type"] == "array"
+    assert pole_targets_schema["items"]["properties"]["name"]["enum"] == ["hip"]
+
+
+def test_translate_appearance_rejects_pole_target_with_no_matching_ik_target():
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {"pole_targets": {"hip": [0.0, 0.0, 0.0]}},
+            "expression": {"weights": {}},
+        },
+        {
+            "pose": {},
+            "expression": {"weights": {}},
+        },
+    ])
+
+    result = translate_appearance("JasonCross", "reaching forward", client, vocab=vocab)
+
+    assert result.pose.pole_targets == {}
+    assert len(client.calls) == 2
+    assert "pole_targets" in client.calls[1]["user_prompt"]
+    assert "no matching ik_targets" in client.calls[1]["user_prompt"]
+
+
+def test_translate_appearance_rejects_unknown_pole_target_bone_name():
+    vocab = _small_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {
+                "ik_targets": {"l_uparm": [0.0, 0.0, 0.0]},
+                "pole_targets": {"l_uparm": [0.0, 0.0, 0.0]},
+            },
+            "expression": {"weights": {}},
+        },
+        {"pose": {}, "expression": {"weights": {}}},
+    ])
+
+    translate_appearance("JasonCross", "reaching forward", client, vocab=vocab)
+
+    assert "pole_targets bone_name 'l_uparm' is not in the vocabulary" in client.calls[1]["user_prompt"]
 
 
 def test_translate_appearance_retries_once_on_invalid_bone_name_then_succeeds():

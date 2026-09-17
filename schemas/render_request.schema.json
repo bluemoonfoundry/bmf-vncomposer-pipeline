@@ -114,6 +114,19 @@
           "title": "Ik Targets",
           "type": "object"
         },
+        "pole_targets": {
+          "additionalProperties": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "description": "Bone name -> world-space pole (elbow/knee direction) point, for the 2-bone IK chain whose end-effector target is ik_targets[same bone name]. A pole_targets entry with no matching ik_targets entry is meaningless and will be rejected.",
+          "title": "Pole Targets",
+          "type": "object"
+        },
         "look_at_target": {
           "anyOf": [
             {

@@ -35,6 +35,15 @@ class PosePayload(BaseModel):
         description="Optional world-space-ish offset applied to the root ('hip') bone's location, for crouching/leaning/repositioning.",
     )
     ik_targets: dict[str, Vector3] = Field(default_factory=dict)
+    pole_targets: dict[str, Vector3] = Field(
+        default_factory=dict,
+        description=(
+            "Bone name -> world-space pole (elbow/knee direction) point, for the "
+            "2-bone IK chain whose end-effector target is ik_targets[same bone "
+            "name]. A pole_targets entry with no matching ik_targets entry is "
+            "meaningless and will be rejected."
+        ),
+    )
     look_at_target: Vector3 | None = Field(
         default=None,
         description=(
@@ -46,7 +55,7 @@ class PosePayload(BaseModel):
         ),
     )
 
-    @field_validator("bone_rotations", "ik_targets")
+    @field_validator("bone_rotations", "ik_targets", "pole_targets")
     @classmethod
     def finite_vectors(cls, value: dict[str, list[float]]) -> dict[str, list[float]]:
         if any(not all(isinstance(x, (int, float)) for x in vector) for vector in value.values()):

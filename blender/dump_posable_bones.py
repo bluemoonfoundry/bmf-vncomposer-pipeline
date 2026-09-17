@@ -57,6 +57,8 @@ def dump_posable_bones(armature):
             c.type == "COPY_TRANSFORMS" and c.subtarget.endswith("(drv)")
             for c in pose_bone.constraints
         )
+        head_world = armature.matrix_world @ pose_bone.bone.head_local
+        tail_world = armature.matrix_world @ pose_bone.bone.tail_local
         bones.append({
             "name": pose_bone.name,
             "parent": pose_bone.parent.name if pose_bone.parent else None,
@@ -64,6 +66,8 @@ def dump_posable_bones(armature):
             "rotation_mode": pose_bone.rotation_mode,
             "has_corrective_layer": corrective,
             "rotation_limits_radians": rotation_limits_for(pose_bone),
+            "rest_head_world": [round(c, 4) for c in head_world],
+            "rest_tail_world": [round(c, 4) for c in tail_world],
         })
     bones.sort(key=lambda b: (b["category"], b["name"]))
     limited_count = sum(1 for b in bones if b["rotation_limits_radians"] is not None)
@@ -79,7 +83,12 @@ def dump_posable_bones(armature):
             "null per-axis or null overall means unconstrained -- keep natural-language-driven "
             "rotations near documented anatomical ranges anyway to avoid clamped/ugly poses. "
             "has_corrective_layer=true bones additionally carry an additive '(drv)' JCM layer "
-            "(mix_mode=BEFORE_FULL) that combines automatically -- safe to pose directly."
+            "(mix_mode=BEFORE_FULL) that combines automatically -- safe to pose directly. "
+            "rest_head_world/rest_tail_world are this bone's rest-pose head/tail position in "
+            "world space (armature.matrix_world @ bone.head_local/tail_local) -- the same "
+            "coordinate system pose.ik_targets, pose.pole_targets, and pose.look_at_target are "
+            "expressed in. Use these as spatial landmarks (e.g. chest, l_shoulder, r_shoulder) "
+            "to compute IK/pole target positions for a description with a spatial goal."
         ),
         "bone_count": len(bones),
         "bones_with_rotation_limits": limited_count,

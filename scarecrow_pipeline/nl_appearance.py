@@ -53,6 +53,22 @@ class LLMClient(Protocol):
         ...
 
 
+class PoseCritique(BaseModel):
+    """Verdict from a vision-model critique of a rendered pose against its
+    natural-language description -- see VisionCritiqueClient/pose_critique.py."""
+
+    model_config = ConfigDict(extra="forbid")
+    matches_description: bool
+    critique: str
+
+
+class VisionCritiqueClient(Protocol):
+    def critique_pose(self, description: str, image_bytes: bytes) -> PoseCritique:
+        """Return a critique of a rendered PNG against its natural-language
+        description. Raises on a provider/network failure."""
+        ...
+
+
 class AppearanceVocabulary(BaseModel):
     """The bone/FACS-control name vocabulary the LLM is constrained to.
 
@@ -100,11 +116,80 @@ def build_system_prompt() -> str:
         "into the bone's final orientation, which matters for figuring "
         "out what the bone will actually do -- it does NOT change which "
         "position in the array holds which axis. Never reorder the "
-        "triplet to match rotation_mode.\n"
-        "- pose.ik_targets and pose.look_at_target are optional -- omit "
-        "them entirely unless the description specifically calls for an IK "
-        "target or a gaze direction. ik_targets is also a list of {name, "
-        "value} entries (value is an [x, y, z] location).\n"
+        "triplet to match rotation_mode. Prefer bone_rotations only for "
+        "spine/neck/torso/twist bones, or any bone with no clear spatial "
+        "target -- for a limb whose pose has a spatial goal, use ik_targets "
+        "and pole_targets instead (see below). Never set both "
+        "bone_rotations and an ik_targets entry for the same bone: the IK "
+        "constraint is evaluated after the manual rotation and will "
+        "silently override it, so the two fight each other and only the "
+        "IK result survives.\n"
+        "- pose.ik_targets: a list of {name, value} entries, one per limb "
+        "you're posing with inverse kinematics, where name is the "
+        "end-effector bone (e.g. \"r_forearm\", \"l_forearm\") and value is "
+        "an [x, y, z] WORLD-SPACE point for that bone's tip to reach for. "
+        "This drives a 2-bone chain (e.g. r_upperarm+r_forearm together) "
+        "toward the target -- you do not need to compute individual joint "
+        "angles yourself, only where the hand/foot should end up in space. "
+        "This is almost always the right tool for arm/leg gestures with a "
+        "spatial goal (crossing arms, hand on hip, reaching for something), "
+        "since guessing raw multi-joint Euler angles for such gestures is "
+        "unreliable.\n"
+        "- pose.pole_targets: a list of {name, value} entries, SAME name "
+        "as the ik_targets entry it belongs to, where value is an [x, y, z] "
+        "WORLD-SPACE point that the elbow/knee should bend toward. A "
+        "2-bone IK chain's bend direction is otherwise ambiguous/unstable, "
+        "so always provide a pole_targets entry alongside every "
+        "ik_targets entry for a limb. Place the pole roughly where the "
+        "elbow/knee itself should point away from the body -- e.g. for an "
+        "arm bending forward and across the chest, the pole point should "
+        "be in front of and below the shoulder, not out to the side or "
+        "behind. A pole_targets entry with no matching ik_targets entry is "
+        "invalid.\n"
+        "- Every bone in the provided vocabulary includes rest_head_world "
+        "and rest_tail_world: that bone's rest-pose head/tail position, in "
+        "the SAME world-space coordinate system as ik_targets, "
+        "pole_targets, and look_at_target. Use these as landmarks -- e.g. "
+        "spine4 (upper chest/collar root), l_shoulder, r_shoulder (and "
+        "their _tail_world, which is further out at the actual point of "
+        "the shoulder, not the spine) -- to reason about where a hand or "
+        "foot target should actually go, rather than guessing coordinates "
+        "blind. For example, if spine4.rest_head_world is [0, 0.05, 1.27], "
+        "l_shoulder.rest_tail_world is [0.15, 0.07, 1.38], and "
+        "r_shoulder.rest_tail_world is [-0.15, 0.06, 1.36], then \"arms "
+        "crossed over the chest\" means: hands rest FLAT AGAINST the "
+        "ribcage, tucked between the body's centerline and the opposite "
+        "shoulder tip -- roughly HALFWAY between x=0 and the opposite "
+        "shoulder tip's x, not out at the shoulder tip itself or beyond "
+        "it. The right arm's end effector (ik_targets[\"r_forearm\"]) "
+        "might land around [0.08, -0.03, 1.15] (about halfway toward "
+        "l_shoulder's x, a little in front of the ribcage on the "
+        "front-facing axis, resting at lower-chest/upper-abdomen height, "
+        "well below shoulder height) with pole_targets[\"r_forearm\"] "
+        "placed in front of and below the right elbow's rest position "
+        "(e.g. [-0.30, -0.15, 0.95]) so the forearm bends across the body "
+        "rather than swinging out to the side or lifting up; "
+        "symmetrically, ik_targets[\"l_forearm\"] lands around "
+        "[-0.08, -0.03, 1.10] (mirrored, and set slightly LOWER in world "
+        "z than the other forearm so the two forearms stack -- one resting "
+        "just above the other -- rather than colliding at the same "
+        "height) with pole_targets[\"l_forearm\"] mirrored too. Keep both "
+        "targets close together near the body's centerline and at a "
+        "similar (chest/upper-abdomen) height -- a common mistake is "
+        "placing them too far out (toward or past the shoulder) or too "
+        "high (up near the collarbone), which reads as a raised guard or "
+        "flinch instead of a relaxed crossed-arms stance. Do NOT add "
+        "bone_rotations for finger bones (e.g. l_index1, r_thumb2) for a "
+        "relaxed or neutral pose -- leaving them unset keeps the hand "
+        "naturally relaxed/open; only pose fingers into a fist or grip "
+        "shape when the description explicitly calls for one. Treat all "
+        "of this as illustrative reasoning, not literal numbers to copy "
+        "for a different character, rig, or gesture -- always compute "
+        "from the actual rest_head_world/rest_tail_world values in the "
+        "vocabulary you were given.\n"
+        "- pose.look_at_target is optional -- omit it entirely unless the "
+        "description specifically calls for a gaze direction. It is a "
+        "single [x, y, z] world-space point, not a list of pairs.\n"
         "- expression.weights: a list of {name, value} entries, one per "
         "FACS/morph control you're setting, where value is a weight in "
         "[0.0, 1.0].\n"
@@ -115,13 +200,22 @@ def build_system_prompt() -> str:
     )
 
 
-def build_user_prompt(character: str, description: str, vocab: AppearanceVocabulary) -> str:
-    return (
+def build_user_prompt(
+    character: str,
+    description: str,
+    vocab: AppearanceVocabulary,
+    *,
+    extra_context: str | None = None,
+) -> str:
+    prompt = (
         f"Character: {character}\n"
         f"Description: {description}\n\n"
         f"Available pose bones (JSON):\n{json.dumps(vocab.bones)}\n\n"
         f"Available expression controls (JSON):\n{json.dumps(vocab.facs_controls)}"
     )
+    if extra_context:
+        prompt += f"\n\n{extra_context}"
+    return prompt
 
 
 def build_retry_prompt(errors: list[str]) -> str:
@@ -146,6 +240,14 @@ def _vocabulary_errors(result: AppearanceResult, vocab: AppearanceVocabulary) ->
         for bone_name in result.pose.ik_targets:
             if bone_name not in bone_names:
                 errors.append(f"ik_targets bone_name {bone_name!r} is not in the vocabulary")
+        for bone_name in result.pose.pole_targets:
+            if bone_name not in bone_names:
+                errors.append(f"pole_targets bone_name {bone_name!r} is not in the vocabulary")
+            elif bone_name not in result.pose.ik_targets:
+                errors.append(
+                    f"pole_targets bone_name {bone_name!r} has no matching ik_targets "
+                    "entry -- a pole target is meaningless without an IK target on the same bone"
+                )
     for control_name in result.expression.weights:
         if control_name not in facs_control_names:
             errors.append(f"expression control {control_name!r} is not in the vocabulary")
@@ -155,6 +257,7 @@ def _vocabulary_errors(result: AppearanceResult, vocab: AppearanceVocabulary) ->
 _OPEN_MAP_VOCAB_TITLES = {
     "Bone Rotations": "bone_names",
     "Ik Targets": "bone_names",
+    "Pole Targets": "bone_names",
     "Weights": "facs_control_names",
 }
 
@@ -217,7 +320,7 @@ def _pairs_to_dicts(raw: dict) -> dict:
 
     pose = raw.get("pose")
     if isinstance(pose, dict):
-        for field in ("bone_rotations", "ik_targets"):
+        for field in ("bone_rotations", "ik_targets", "pole_targets"):
             if isinstance(pose.get(field), list):
                 pose[field] = pairs_to_dict(pose[field])
     expression = raw.get("expression")
@@ -265,13 +368,14 @@ def translate_appearance(
     client: LLMClient,
     *,
     vocab: AppearanceVocabulary | None = None,
+    extra_context: str | None = None,
 ) -> AppearanceResult:
     vocab = vocab or load_default_vocabulary()
     schema = _strip_unsupported_keywords(
         _localize_open_maps(AppearanceResult.model_json_schema(), vocab)
     )
     system_prompt = build_system_prompt()
-    base_user_prompt = build_user_prompt(character, description, vocab)
+    base_user_prompt = build_user_prompt(character, description, vocab, extra_context=extra_context)
 
     errors: list[str] = []
     for attempt in range(MAX_ATTEMPTS):
@@ -338,3 +442,50 @@ class AnthropicClient:
         if text is None:
             raise RuntimeError("Anthropic response contained no text block")
         return json.loads(text)
+
+    def critique_pose(self, description: str, image_bytes: bytes, media_type: str = "image/png") -> PoseCritique:
+        """Two-call implementation: a vision call produces a free-text
+        critique of the render against the description, then a text-only
+        complete_json call extracts a structured verdict from that critique.
+        Kept as two calls rather than combining an image content block with
+        output_config.format in one request -- whether Anthropic's
+        structured-output mode supports image input in the same call as a
+        json_schema constraint is unverified, while both calls made here
+        individually use already-proven code paths."""
+        import base64
+
+        encoded = base64.standard_b64encode(image_bytes).decode("ascii")
+        vision_response = self._client.messages.create(
+            model=self._model,
+            max_tokens=1024,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {"type": "base64", "media_type": media_type, "data": encoded},
+                    },
+                    {
+                        "type": "text",
+                        "text": (
+                            "This is a rendered image of a character. Does the pose visually "
+                            f"match this description: {description!r}? Critique the pose "
+                            "specifically -- if a limb or posture doesn't match, say concretely "
+                            "what's wrong and where it should be instead."
+                        ),
+                    },
+                ],
+            }],
+        )
+        critique_text = next(
+            (block.text for block in vision_response.content if block.type == "text"), ""
+        )
+        verdict_raw = self.complete_json(
+            "You extract a structured verdict from a pose critique. Respond with a single "
+            "JSON object matching the given schema.",
+            f"Critique:\n{critique_text}\n\n"
+            "Does this critique conclude the pose matches the description well enough to "
+            "accept, or does it call out a mismatch that should be corrected?",
+            PoseCritique.model_json_schema(),
+        )
+        return PoseCritique.model_validate(verdict_raw)

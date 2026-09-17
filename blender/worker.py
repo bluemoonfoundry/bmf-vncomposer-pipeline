@@ -143,7 +143,14 @@ def apply_pose(pose, character):
         if root_bone is not None:
             root_bone.location = Vector(root_location)
 
-    for bone_name, coordinates in pose.get("ik_targets", {}).items():
+    pole_targets = pose.get("pole_targets", {})
+    ik_target_bones = pose.get("ik_targets", {})
+    for bone_name in pole_targets:
+        if bone_name not in ik_target_bones:
+            print(f"WARNING: pole target for bone {bone_name!r} has no matching ik_targets "
+                  f"entry; ignored.")
+
+    for bone_name, coordinates in ik_target_bones.items():
         if bone_name not in armature.pose.bones:
             print(f"WARNING: IK target bone {bone_name!r} not found on armature {armature.name!r}; ignored.")
             continue
@@ -156,6 +163,16 @@ def apply_pose(pose, character):
         constraint.name = "Scarecrow IK"
         constraint.target = target
         constraint.chain_count = 2
+
+        pole_coordinates = pole_targets.get(bone_name)
+        if pole_coordinates is not None:
+            pole = bpy.data.objects.get(f"IK_Pole_{bone_name}") or bpy.data.objects.new(f"IK_Pole_{bone_name}", None)
+            if not pole.users_collection:
+                bpy.context.scene.collection.objects.link(pole)
+            pole.location = Vector(pole_coordinates)
+            constraint.pole_target = pole
+        else:
+            constraint.pole_target = None
 
     look_at_target = pose.get("look_at_target")
     look_bone_names = ["head", "l_eye", "r_eye"]

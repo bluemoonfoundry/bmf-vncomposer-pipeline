@@ -166,6 +166,54 @@ def test_apply_appearance_reports_failed_status_on_nonzero_blender_exit(tmp_path
     assert "blender exploded" in entry["stderr"]
 
 
+class FakeVisionClient:
+    """Returns queued PoseCritique verdicts in order."""
+
+    def __init__(self, verdicts):
+        self._verdicts = list(verdicts)
+        self.calls = []
+
+    def critique_pose(self, description, image_bytes):
+        self.calls.append({"description": description, "image_bytes": image_bytes})
+        return self._verdicts.pop(0)
+
+
+def test_apply_appearance_with_vision_client_critiques_and_returns_manifest(tmp_path):
+    """When vision_client is supplied, apply_appearance() delegates to the
+    pose_critique loop instead of its single-shot path -- see scarecrow-57h."""
+    from scarecrow_pipeline.nl_appearance import PoseCritique
+
+    registry_path = tmp_path / "registry.json"
+    _write_registry(registry_path)
+    client = FakeLLMClient([
+        {"pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}}, "expression": {"weights": {}}},
+    ])
+    vision_client = FakeVisionClient([PoseCritique(matches_description=True, critique="matches")])
+    fake_run = _fake_run_factory()
+    output_path = tmp_path / "out.png"
+    # The real Blender subprocess writes output_path; _fake_run_factory only
+    # simulates the process exit code, so the render_fn's read_bytes() needs
+    # a real file already there.
+    output_path.write_bytes(b"fake-png-bytes")
+
+    entry = apply_appearance.apply_appearance(
+        "JasonCross",
+        "standing at ease, arms crossed",
+        str(output_path),
+        client=client,
+        blender_exe="blender.exe",
+        registry_path=registry_path,
+        vocab=_small_vocab(),
+        run=fake_run,
+        vision_client=vision_client,
+    )
+
+    assert entry["status"] == "ok"
+    assert entry["matches_description"] is True
+    assert entry["attempts"] == 1
+    assert len(vision_client.calls) == 1
+
+
 @pytest.mark.skipif(
     os.environ.get("RUN_BLENDER_SMOKE_TEST") != "1",
     reason="opt-in smoke test: set RUN_BLENDER_SMOKE_TEST=1 to run (launches real Blender)",

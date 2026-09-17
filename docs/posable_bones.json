@@ -1,7 +1,7 @@
 {
   "armature": "Jason Cross",
-  "note": "Posable (non-'(drv)') pose bones on the Diffeomorphic-imported rig. Drive these via pose.bones[name].rotation_euler using EACH BONE'S OWN rotation_mode (do not force XYZ order -- DAZ's native per-bone axis order matters for multi-axis rotations). rotation_limits_radians, where present, come from a LIMIT_ROTATION constraint already on the bone (imported from DAZ's own joint limits) and are enforced automatically by Blender at evaluation time; null per-axis or null overall means unconstrained -- keep natural-language-driven rotations near documented anatomical ranges anyway to avoid clamped/ugly poses. has_corrective_layer=true bones additionally carry an additive '(drv)' JCM layer (mix_mode=BEFORE_FULL) that combines automatically -- safe to pose directly.",
-  "bone_count": 143,
+  "note": "Posable (non-'(drv)') pose bones on the Diffeomorphic-imported rig. Drive these via pose.bones[name].rotation_euler using EACH BONE'S OWN rotation_mode (do not force XYZ order -- DAZ's native per-bone axis order matters for multi-axis rotations). rotation_limits_radians, where present, come from a LIMIT_ROTATION constraint already on the bone (imported from DAZ's own joint limits) and are enforced automatically by Blender at evaluation time; null per-axis or null overall means unconstrained -- keep natural-language-driven rotations near documented anatomical ranges anyway to avoid clamped/ugly poses. has_corrective_layer=true bones additionally carry an additive '(drv)' JCM layer (mix_mode=BEFORE_FULL) that combines automatically -- safe to pose directly. rest_head_world/rest_tail_world are this bone's rest-pose head/tail position in world space (armature.matrix_world @ bone.head_local/tail_local) -- the same coordinate system pose.ik_targets, pose.pole_targets, and pose.look_at_target are expressed in. Use these as spatial landmarks (e.g. chest, l_shoulder, r_shoulder) to compute IK/pole target positions for a description with a spatial goal.",
+  "bone_count": 144,
   "bones_with_rotation_limits": 90,
   "bones": [
     {
@@ -10,7 +10,17 @@
       "category": "arm",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0384,
+        0.0474,
+        1.3575
+      ],
+      "rest_tail_world": [
+        0.1515,
+        0.0675,
+        1.3758
+      ]
     },
     {
       "name": "l_upperarm",
@@ -18,7 +28,17 @@
       "category": "arm",
       "rotation_mode": "YXZ",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.176,
+        0.0637,
+        1.3691
+      ],
+      "rest_tail_world": [
+        0.3506,
+        0.0222,
+        1.2154
+      ]
     },
     {
       "name": "l_upperarmtwist1",
@@ -26,7 +46,17 @@
       "category": "arm",
       "rotation_mode": "YXZ",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.2151,
+        0.0493,
+        1.3388
+      ],
+      "rest_tail_world": [
+        0.2813,
+        0.0336,
+        1.2806
+      ]
     },
     {
       "name": "l_upperarmtwist2",
@@ -34,7 +64,17 @@
       "category": "arm",
       "rotation_mode": "YXZ",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.2802,
+        0.0314,
+        1.2871
+      ],
+      "rest_tail_world": [
+        0.3527,
+        0.0142,
+        1.2233
+      ]
     },
     {
       "name": "r_shoulder",
@@ -42,7 +82,17 @@
       "category": "arm",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0385,
+        0.0474,
+        1.3575
+      ],
+      "rest_tail_world": [
+        -0.1541,
+        0.0568,
+        1.3644
+      ]
     },
     {
       "name": "r_upperarm",
@@ -50,7 +100,17 @@
       "category": "arm",
       "rotation_mode": "YXZ",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.1774,
+        0.0524,
+        1.3542
+      ],
+      "rest_tail_world": [
+        -0.3334,
+        0.0495,
+        1.1769
+      ]
     },
     {
       "name": "r_upperarmtwist1",
@@ -58,7 +118,17 @@
       "category": "arm",
       "rotation_mode": "YXZ",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.2135,
+        0.0464,
+        1.3181
+      ],
+      "rest_tail_world": [
+        -0.2726,
+        0.0453,
+        1.2509
+      ]
     },
     {
       "name": "r_upperarmtwist2",
@@ -66,7 +136,17 @@
       "category": "arm",
       "rotation_mode": "YXZ",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.2727,
+        0.0425,
+        1.2572
+      ],
+      "rest_tail_world": [
+        -0.3375,
+        0.0412,
+        1.1835
+      ]
     },
     {
       "name": "centerbrow",
@@ -87,7 +167,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.1065,
+        1.6177
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.1155,
+        1.6177
+      ]
     },
     {
       "name": "chin",
@@ -108,7 +198,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0,
+        -0.0916,
+        1.4966
+      ],
+      "rest_tail_world": [
+        0.0,
+        -0.1024,
+        1.4966
+      ]
     },
     {
       "name": "l_browinner",
@@ -129,7 +229,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0222,
+        -0.0996,
+        1.619
+      ],
+      "rest_tail_world": [
+        0.0222,
+        -0.1087,
+        1.619
+      ]
     },
     {
       "name": "l_browouter",
@@ -150,7 +260,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0453,
+        -0.0892,
+        1.6172
+      ],
+      "rest_tail_world": [
+        0.0453,
+        -0.1001,
+        1.6172
+      ]
     },
     {
       "name": "l_cheek",
@@ -171,7 +291,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0521,
+        -0.0809,
+        1.5687
+      ],
+      "rest_tail_world": [
+        0.0521,
+        -0.0899,
+        1.5687
+      ]
     },
     {
       "name": "l_cheeklower",
@@ -192,7 +322,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0458,
+        -0.0587,
+        1.5333
+      ],
+      "rest_tail_world": [
+        0.0458,
+        -0.0692,
+        1.5333
+      ]
     },
     {
       "name": "l_ear",
@@ -213,7 +353,17 @@
           -0.1745,
           0.1745
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0731,
+        0.002,
+        1.5755
+      ],
+      "rest_tail_world": [
+        0.0925,
+        0.0352,
+        1.5741
+      ]
     },
     {
       "name": "l_eye",
@@ -221,7 +371,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0345,
+        -0.0797,
+        1.5971
+      ],
+      "rest_tail_world": [
+        0.0353,
+        -0.0952,
+        1.5971
+      ]
     },
     {
       "name": "l_eyelidlower",
@@ -242,7 +402,17 @@
           -0.0873,
           0.0873
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0336,
+        -0.0797,
+        1.597
+      ],
+      "rest_tail_world": [
+        0.0336,
+        -0.093,
+        1.592
+      ]
     },
     {
       "name": "l_eyelidupper",
@@ -263,7 +433,17 @@
           -0.0873,
           0.0873
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0336,
+        -0.0797,
+        1.5973
+      ],
+      "rest_tail_world": [
+        0.0336,
+        -0.0944,
+        1.6007
+      ]
     },
     {
       "name": "l_forearm",
@@ -271,7 +451,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.3567,
+        0.0146,
+        1.2243
+      ],
+      "rest_tail_world": [
+        0.5376,
+        -0.1237,
+        1.1025
+      ]
     },
     {
       "name": "l_forearmtwist1",
@@ -279,7 +469,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.3967,
+        -0.0148,
+        1.1977
+      ],
+      "rest_tail_world": [
+        0.4726,
+        -0.0729,
+        1.1465
+      ]
     },
     {
       "name": "l_forearmtwist2",
@@ -287,7 +487,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.477,
+        -0.0712,
+        1.1491
+      ],
+      "rest_tail_world": [
+        0.5452,
+        -0.1233,
+        1.1032
+      ]
     },
     {
       "name": "l_lipcorner",
@@ -308,7 +518,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0306,
+        -0.0882,
+        1.5292
+      ],
+      "rest_tail_world": [
+        0.0306,
+        -0.0996,
+        1.5292
+      ]
     },
     {
       "name": "l_liplower",
@@ -329,7 +549,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0155,
+        -0.0958,
+        1.5219
+      ],
+      "rest_tail_world": [
+        0.0155,
+        -0.1059,
+        1.5219
+      ]
     },
     {
       "name": "l_lipupper",
@@ -350,7 +580,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0161,
+        -0.0989,
+        1.5315
+      ],
+      "rest_tail_world": [
+        0.0161,
+        -0.1078,
+        1.5315
+      ]
     },
     {
       "name": "l_nostril",
@@ -371,7 +611,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0158,
+        -0.1077,
+        1.5593
+      ],
+      "rest_tail_world": [
+        0.0158,
+        -0.1194,
+        1.5593
+      ]
     },
     {
       "name": "liplowermiddle",
@@ -392,7 +642,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0,
+        -0.1023,
+        1.5199
+      ],
+      "rest_tail_world": [
+        0.0,
+        -0.1133,
+        1.5199
+      ]
     },
     {
       "name": "lipuppermiddle",
@@ -413,7 +673,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.106,
+        1.5334
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.1163,
+        1.5334
+      ]
     },
     {
       "name": "lowerjaw",
@@ -431,7 +701,17 @@
           -0.2094,
           0.2094
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.0207,
+        1.5536
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0884,
+        1.5241
+      ]
     },
     {
       "name": "lowerteeth",
@@ -439,7 +719,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0,
+        -0.0729,
+        1.5285
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0835,
+        1.5264
+      ]
     },
     {
       "name": "r_browinner",
@@ -460,7 +750,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0222,
+        -0.0996,
+        1.619
+      ],
+      "rest_tail_world": [
+        -0.0222,
+        -0.1087,
+        1.619
+      ]
     },
     {
       "name": "r_browouter",
@@ -481,7 +781,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0453,
+        -0.0892,
+        1.6173
+      ],
+      "rest_tail_world": [
+        -0.0453,
+        -0.1,
+        1.6173
+      ]
     },
     {
       "name": "r_cheek",
@@ -502,7 +812,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0521,
+        -0.0809,
+        1.5687
+      ],
+      "rest_tail_world": [
+        -0.0521,
+        -0.0899,
+        1.5687
+      ]
     },
     {
       "name": "r_cheeklower",
@@ -523,7 +843,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0458,
+        -0.0587,
+        1.5333
+      ],
+      "rest_tail_world": [
+        -0.0458,
+        -0.0693,
+        1.5333
+      ]
     },
     {
       "name": "r_ear",
@@ -544,7 +874,17 @@
           -0.1745,
           0.1745
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0731,
+        0.002,
+        1.5754
+      ],
+      "rest_tail_world": [
+        -0.0925,
+        0.0352,
+        1.5741
+      ]
     },
     {
       "name": "r_eye",
@@ -552,7 +892,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0345,
+        -0.0797,
+        1.5971
+      ],
+      "rest_tail_world": [
+        -0.0353,
+        -0.0952,
+        1.5971
+      ]
     },
     {
       "name": "r_eyelidlower",
@@ -573,7 +923,17 @@
           -0.0873,
           0.0873
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0336,
+        -0.0797,
+        1.597
+      ],
+      "rest_tail_world": [
+        -0.0336,
+        -0.093,
+        1.592
+      ]
     },
     {
       "name": "r_eyelidupper",
@@ -594,7 +954,17 @@
           -0.0873,
           0.0873
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0336,
+        -0.0797,
+        1.5973
+      ],
+      "rest_tail_world": [
+        -0.0336,
+        -0.0944,
+        1.6007
+      ]
     },
     {
       "name": "r_forearm",
@@ -602,7 +972,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.3415,
+        0.042,
+        1.1841
+      ],
+      "rest_tail_world": [
+        -0.5282,
+        -0.0183,
+        1.0162
+      ]
     },
     {
       "name": "r_forearmtwist1",
@@ -610,7 +990,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.3823,
+        0.0298,
+        1.1473
+      ],
+      "rest_tail_world": [
+        -0.4607,
+        0.0045,
+        1.0768
+      ]
     },
     {
       "name": "r_forearmtwist2",
@@ -618,7 +1008,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.4644,
+        0.008,
+        1.0782
+      ],
+      "rest_tail_world": [
+        -0.5348,
+        -0.0148,
+        1.0149
+      ]
     },
     {
       "name": "r_lipcorner",
@@ -639,7 +1039,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0306,
+        -0.0882,
+        1.5292
+      ],
+      "rest_tail_world": [
+        -0.0306,
+        -0.0997,
+        1.5292
+      ]
     },
     {
       "name": "r_liplower",
@@ -660,7 +1070,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0155,
+        -0.0958,
+        1.522
+      ],
+      "rest_tail_world": [
+        -0.0155,
+        -0.1059,
+        1.522
+      ]
     },
     {
       "name": "r_lipupper",
@@ -681,7 +1101,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0161,
+        -0.0989,
+        1.5315
+      ],
+      "rest_tail_world": [
+        -0.0161,
+        -0.1078,
+        1.5315
+      ]
     },
     {
       "name": "r_nostril",
@@ -702,7 +1132,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0158,
+        -0.1077,
+        1.5593
+      ],
+      "rest_tail_world": [
+        -0.0158,
+        -0.1194,
+        1.5593
+      ]
     },
     {
       "name": "tongue01",
@@ -723,7 +1163,17 @@
           -0.7854,
           0.7854
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.0559,
+        1.5212
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0642,
+        1.5254
+      ]
     },
     {
       "name": "tongue02",
@@ -744,7 +1194,17 @@
           -0.7854,
           0.7854
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.0642,
+        1.5254
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0724,
+        1.5274
+      ]
     },
     {
       "name": "tongue03",
@@ -765,7 +1225,17 @@
           -0.7854,
           0.7854
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.0724,
+        1.5274
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0806,
+        1.5273
+      ]
     },
     {
       "name": "tongue04",
@@ -786,7 +1256,17 @@
           -0.7854,
           0.7854
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.0806,
+        1.5273
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0884,
+        1.5275
+      ]
     },
     {
       "name": "tongue05",
@@ -807,7 +1287,17 @@
           -0.7854,
           0.7854
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        -0.0884,
+        1.5275
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0954,
+        1.5288
+      ]
     },
     {
       "name": "upperteeth",
@@ -815,7 +1305,17 @@
       "category": "face",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0,
+        -0.0755,
+        1.5376
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.086,
+        1.5374
+      ]
     },
     {
       "name": "l_bigtoe1",
@@ -836,7 +1336,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.1897,
+        -0.0783,
+        0.0279
+      ],
+      "rest_tail_world": [
+        0.2043,
+        -0.1064,
+        0.0223
+      ]
     },
     {
       "name": "l_bigtoe2",
@@ -851,7 +1361,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.2029,
+        -0.1076,
+        0.0247
+      ],
+      "rest_tail_world": [
+        0.2143,
+        -0.13,
+        0.0206
+      ]
     },
     {
       "name": "l_foot",
@@ -872,7 +1392,17 @@
           -0.1745,
           0.4363
         ]
-      }
+      },
+      "rest_head_world": [
+        0.1533,
+        0.0685,
+        0.0746
+      ],
+      "rest_tail_world": [
+        0.2055,
+        -0.0452,
+        0.0279
+      ]
     },
     {
       "name": "l_metatarsal",
@@ -893,7 +1423,17 @@
           -0.1745,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.1544,
+        0.066,
+        0.0737
+      ],
+      "rest_tail_world": [
+        0.1845,
+        0.0002,
+        0.0467
+      ]
     },
     {
       "name": "l_toes",
@@ -911,7 +1451,17 @@
           0.1745
         ],
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.2155,
+        -0.0624,
+        0.0272
+      ],
+      "rest_tail_world": [
+        0.2384,
+        -0.1185,
+        0.0275
+      ]
     },
     {
       "name": "r_bigtoe1",
@@ -932,7 +1482,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.139,
+        -0.0933,
+        0.0176
+      ],
+      "rest_tail_world": [
+        -0.1508,
+        -0.1223,
+        0.0109
+      ]
     },
     {
       "name": "r_bigtoe2",
@@ -947,7 +1507,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        -0.1496,
+        -0.1235,
+        0.0134
+      ],
+      "rest_tail_world": [
+        -0.1587,
+        -0.1467,
+        0.0084
+      ]
     },
     {
       "name": "r_foot",
@@ -968,7 +1538,17 @@
           -0.4363,
           0.1745
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.1184,
+        0.0557,
+        0.067
+      ],
+      "rest_tail_world": [
+        -0.1573,
+        -0.0615,
+        0.0163
+      ]
     },
     {
       "name": "r_metatarsal",
@@ -989,7 +1569,17 @@
           -0.2618,
           0.1745
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.1192,
+        0.0532,
+        0.066
+      ],
+      "rest_tail_world": [
+        -0.1417,
+        -0.0146,
+        0.0367
+      ]
     },
     {
       "name": "r_toes",
@@ -1007,7 +1597,17 @@
           0.1745
         ],
         "z": null
-      }
+      },
+      "rest_head_world": [
+        -0.1659,
+        -0.0794,
+        0.0148
+      ],
+      "rest_tail_world": [
+        -0.1842,
+        -0.1372,
+        0.0132
+      ]
     },
     {
       "name": "l_hand",
@@ -1028,7 +1628,17 @@
           -1.2217,
           1.3963
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5435,
+        -0.1253,
+        1.1021
+      ],
+      "rest_tail_world": [
+        0.6098,
+        -0.1759,
+        1.0575
+      ]
     },
     {
       "name": "l_hand_anchor",
@@ -1036,7 +1646,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.583,
+        -0.1459,
+        1.0457
+      ],
+      "rest_tail_world": [
+        0.5394,
+        -0.238,
+        1.0332
+      ]
     },
     {
       "name": "l_index1",
@@ -1057,7 +1677,17 @@
           -0.2094,
           0.3142
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5885,
+        -0.1826,
+        1.0567
+      ],
+      "rest_tail_world": [
+        0.6145,
+        -0.1979,
+        1.0343
+      ]
     },
     {
       "name": "l_index2",
@@ -1072,7 +1702,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.6141,
+        -0.2002,
+        1.0356
+      ],
+      "rest_tail_world": [
+        0.6288,
+        -0.2078,
+        1.0233
+      ]
     },
     {
       "name": "l_index3",
@@ -1087,7 +1727,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.6278,
+        -0.208,
+        1.0223
+      ],
+      "rest_tail_world": [
+        0.6434,
+        -0.2158,
+        1.0087
+      ]
     },
     {
       "name": "l_indexmetacarpal",
@@ -1105,7 +1755,17 @@
           -0.0698,
           0.0524
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5424,
+        -0.1374,
+        1.0978
+      ],
+      "rest_tail_world": [
+        0.5908,
+        -0.1779,
+        1.055
+      ]
     },
     {
       "name": "l_indextoe1",
@@ -1126,7 +1786,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.2098,
+        -0.0748,
+        0.0341
+      ],
+      "rest_tail_world": [
+        0.2205,
+        -0.0988,
+        0.0295
+      ]
     },
     {
       "name": "l_indextoe2",
@@ -1141,7 +1811,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.2209,
+        -0.0991,
+        0.0323
+      ],
+      "rest_tail_world": [
+        0.2303,
+        -0.1206,
+        0.023
+      ]
     },
     {
       "name": "l_mid1",
@@ -1162,7 +1842,17 @@
           -0.2094,
           0.2094
         ]
-      }
+      },
+      "rest_head_world": [
+        0.6026,
+        -0.1669,
+        1.0581
+      ],
+      "rest_tail_world": [
+        0.6342,
+        -0.182,
+        1.0353
+      ]
     },
     {
       "name": "l_mid2",
@@ -1177,7 +1867,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.6341,
+        -0.1837,
+        1.0359
+      ],
+      "rest_tail_world": [
+        0.653,
+        -0.1924,
+        1.0189
+      ]
     },
     {
       "name": "l_mid3",
@@ -1192,7 +1892,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.6521,
+        -0.1933,
+        1.0184
+      ],
+      "rest_tail_world": [
+        0.6695,
+        -0.2009,
+        1.0064
+      ]
     },
     {
       "name": "l_midmetacarpal",
@@ -1210,7 +1920,17 @@
           -0.0524,
           0.0524
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5481,
+        -0.1318,
+        1.0984
+      ],
+      "rest_tail_world": [
+        0.6037,
+        -0.1636,
+        1.0568
+      ]
     },
     {
       "name": "l_midtoe1",
@@ -1231,7 +1951,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.2227,
+        -0.0708,
+        0.0359
+      ],
+      "rest_tail_world": [
+        0.2308,
+        -0.0913,
+        0.0308
+      ]
     },
     {
       "name": "l_midtoe2",
@@ -1246,7 +1976,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.2317,
+        -0.0915,
+        0.033
+      ],
+      "rest_tail_world": [
+        0.2403,
+        -0.1115,
+        0.0223
+      ]
     },
     {
       "name": "l_pinky1",
@@ -1267,7 +2007,17 @@
           -0.3142,
           0.2094
         ]
-      }
+      },
+      "rest_head_world": [
+        0.609,
+        -0.1292,
+        1.0607
+      ],
+      "rest_tail_world": [
+        0.6323,
+        -0.1356,
+        1.0448
+      ]
     },
     {
       "name": "l_pinky2",
@@ -1282,7 +2032,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.6316,
+        -0.1363,
+        1.0441
+      ],
+      "rest_tail_world": [
+        0.6459,
+        -0.1399,
+        1.0347
+      ]
     },
     {
       "name": "l_pinky3",
@@ -1297,7 +2057,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.6453,
+        -0.1405,
+        1.034
+      ],
+      "rest_tail_world": [
+        0.6603,
+        -0.1443,
+        1.0239
+      ]
     },
     {
       "name": "l_pinkymetacarpal",
@@ -1315,7 +2085,17 @@
           -0.0524,
           0.0698
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5575,
+        -0.1165,
+        1.1017
+      ],
+      "rest_tail_world": [
+        0.6086,
+        -0.1266,
+        1.0614
+      ]
     },
     {
       "name": "l_pinkytoe1",
@@ -1336,7 +2116,17 @@
           -0.3491,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.2435,
+        -0.0531,
+        0.0315
+      ],
+      "rest_tail_world": [
+        0.2464,
+        -0.0646,
+        0.0277
+      ]
     },
     {
       "name": "l_pinkytoe2",
@@ -1351,7 +2141,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.2472,
+        -0.0649,
+        0.0292
+      ],
+      "rest_tail_world": [
+        0.2499,
+        -0.0766,
+        0.0222
+      ]
     },
     {
       "name": "l_ring1",
@@ -1372,7 +2172,17 @@
           -0.2094,
           0.2094
         ]
-      }
+      },
+      "rest_head_world": [
+        0.6071,
+        -0.1491,
+        1.0609
+      ],
+      "rest_tail_world": [
+        0.6385,
+        -0.1601,
+        1.0379
+      ]
     },
     {
       "name": "l_ring2",
@@ -1387,7 +2197,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.638,
+        -0.1618,
+        1.038
+      ],
+      "rest_tail_world": [
+        0.6551,
+        -0.1678,
+        1.0253
+      ]
     },
     {
       "name": "l_ring3",
@@ -1402,7 +2222,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.654,
+        -0.1685,
+        1.0243
+      ],
+      "rest_tail_world": [
+        0.6715,
+        -0.1745,
+        1.0116
+      ]
     },
     {
       "name": "l_ringmetacarpal",
@@ -1420,7 +2250,17 @@
           -0.0524,
           0.0524
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5531,
+        -0.1242,
+        1.1001
+      ],
+      "rest_tail_world": [
+        0.6079,
+        -0.1461,
+        1.0599
+      ]
     },
     {
       "name": "l_ringtoe1",
@@ -1441,7 +2281,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.2319,
+        -0.0623,
+        0.0332
+      ],
+      "rest_tail_world": [
+        0.2402,
+        -0.0802,
+        0.0285
+      ]
     },
     {
       "name": "l_ringtoe2",
@@ -1456,7 +2306,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.2404,
+        -0.0806,
+        0.0307
+      ],
+      "rest_tail_world": [
+        0.2477,
+        -0.0976,
+        0.0208
+      ]
     },
     {
       "name": "l_thumb1",
@@ -1477,7 +2337,17 @@
           -0.3491,
           0.3491
         ]
-      }
+      },
+      "rest_head_world": [
+        0.5434,
+        -0.142,
+        1.0824
+      ],
+      "rest_tail_world": [
+        0.5436,
+        -0.1754,
+        1.059
+      ]
     },
     {
       "name": "l_thumb2",
@@ -1492,7 +2362,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.5409,
+        -0.1761,
+        1.0602
+      ],
+      "rest_tail_world": [
+        0.5479,
+        -0.1932,
+        1.0388
+      ]
     },
     {
       "name": "l_thumb3",
@@ -1507,7 +2387,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        0.5474,
+        -0.1939,
+        1.0391
+      ],
+      "rest_tail_world": [
+        0.5522,
+        -0.2152,
+        1.0217
+      ]
     },
     {
       "name": "r_hand",
@@ -1528,7 +2418,17 @@
           -1.3963,
           1.2217
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.5339,
+        -0.0173,
+        1.0142
+      ],
+      "rest_tail_world": [
+        -0.6023,
+        -0.0394,
+        0.9528
+      ]
     },
     {
       "name": "r_hand_anchor",
@@ -1536,7 +2436,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5633,
+        -0.0245,
+        0.9491
+      ],
+      "rest_tail_world": [
+        -0.5616,
+        -0.1264,
+        0.9461
+      ]
     },
     {
       "name": "r_index1",
@@ -1544,7 +2454,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5914,
+        -0.0496,
+        0.9602
+      ],
+      "rest_tail_world": [
+        -0.599,
+        -0.062,
+        0.9256
+      ]
     },
     {
       "name": "r_index2",
@@ -1552,7 +2472,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.6001,
+        -0.0642,
+        0.9267
+      ],
+      "rest_tail_world": [
+        -0.6084,
+        -0.0706,
+        0.909
+      ]
     },
     {
       "name": "r_index3",
@@ -1560,7 +2490,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.6071,
+        -0.0713,
+        0.9087
+      ],
+      "rest_tail_world": [
+        -0.6209,
+        -0.0782,
+        0.8928
+      ]
     },
     {
       "name": "r_indexmetacarpal",
@@ -1568,7 +2508,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5371,
+        -0.0292,
+        1.0101
+      ],
+      "rest_tail_world": [
+        -0.5909,
+        -0.0446,
+        0.9583
+      ]
     },
     {
       "name": "r_indextoe1",
@@ -1589,7 +2539,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.1597,
+        -0.0914,
+        0.0221
+      ],
+      "rest_tail_world": [
+        -0.1681,
+        -0.1161,
+        0.0167
+      ]
     },
     {
       "name": "r_indextoe2",
@@ -1604,7 +2564,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        -0.1687,
+        -0.1165,
+        0.0195
+      ],
+      "rest_tail_world": [
+        -0.1756,
+        -0.1386,
+        0.0094
+      ]
     },
     {
       "name": "r_mid1",
@@ -1612,7 +2582,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5963,
+        -0.0329,
+        0.9592
+      ],
+      "rest_tail_world": [
+        -0.5998,
+        -0.0413,
+        0.9184
+      ]
     },
     {
       "name": "r_mid2",
@@ -1620,7 +2600,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.6006,
+        -0.0429,
+        0.9186
+      ],
+      "rest_tail_world": [
+        -0.6056,
+        -0.0488,
+        0.8929
+      ]
     },
     {
       "name": "r_mid3",
@@ -1628,7 +2618,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.6049,
+        -0.0499,
+        0.8931
+      ],
+      "rest_tail_world": [
+        -0.6131,
+        -0.0545,
+        0.8727
+      ]
     },
     {
       "name": "r_midmetacarpal",
@@ -1636,7 +2636,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5398,
+        -0.0217,
+        1.0093
+      ],
+      "rest_tail_world": [
+        -0.5956,
+        -0.0295,
+        0.9578
+      ]
     },
     {
       "name": "r_midtoe1",
@@ -1657,7 +2667,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.1731,
+        -0.0884,
+        0.0228
+      ],
+      "rest_tail_world": [
+        -0.1791,
+        -0.1095,
+        0.0171
+      ]
     },
     {
       "name": "r_midtoe2",
@@ -1672,7 +2692,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        -0.1801,
+        -0.1097,
+        0.0192
+      ],
+      "rest_tail_world": [
+        -0.1861,
+        -0.1303,
+        0.0079
+      ]
     },
     {
       "name": "r_pinky1",
@@ -1680,7 +2710,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5862,
+        -0.0003,
+        0.9599
+      ],
+      "rest_tail_world": [
+        -0.5874,
+        -0.004,
+        0.9312
+      ]
     },
     {
       "name": "r_pinky2",
@@ -1688,7 +2728,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5867,
+        -0.0049,
+        0.9313
+      ],
+      "rest_tail_world": [
+        -0.5911,
+        -0.0071,
+        0.9146
+      ]
     },
     {
       "name": "r_pinky3",
@@ -1696,7 +2746,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5904,
+        -0.0079,
+        0.9145
+      ],
+      "rest_tail_world": [
+        -0.6009,
+        -0.0101,
+        0.8994
+      ]
     },
     {
       "name": "r_pinkymetacarpal",
@@ -1704,7 +2764,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5423,
+        -0.0036,
+        1.0105
+      ],
+      "rest_tail_world": [
+        -0.5849,
+        0.0021,
+        0.9606
+      ]
     },
     {
       "name": "r_pinkytoe1",
@@ -1725,7 +2795,17 @@
           -0.2618,
           0.3491
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.1947,
+        -0.0724,
+        0.0167
+      ],
+      "rest_tail_world": [
+        -0.1964,
+        -0.0841,
+        0.0127
+      ]
     },
     {
       "name": "r_pinkytoe2",
@@ -1740,7 +2820,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        -0.1973,
+        -0.0844,
+        0.0141
+      ],
+      "rest_tail_world": [
+        -0.1984,
+        -0.0963,
+        0.0069
+      ]
     },
     {
       "name": "r_ring1",
@@ -1748,7 +2838,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.593,
+        -0.0149,
+        0.9609
+      ],
+      "rest_tail_world": [
+        -0.592,
+        -0.0204,
+        0.9208
+      ]
     },
     {
       "name": "r_ring2",
@@ -1756,7 +2856,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5924,
+        -0.0221,
+        0.9211
+      ],
+      "rest_tail_world": [
+        -0.5964,
+        -0.0256,
+        0.8995
+      ]
     },
     {
       "name": "r_ring3",
@@ -1764,7 +2874,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5952,
+        -0.0267,
+        0.8995
+      ],
+      "rest_tail_world": [
+        -0.6023,
+        -0.0304,
+        0.8787
+      ]
     },
     {
       "name": "r_ringmetacarpal",
@@ -1772,7 +2892,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5413,
+        -0.0125,
+        1.0099
+      ],
+      "rest_tail_world": [
+        -0.5922,
+        -0.0119,
+        0.9598
+      ]
     },
     {
       "name": "r_ringtoe1",
@@ -1793,7 +2923,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.1826,
+        -0.0806,
+        0.0194
+      ],
+      "rest_tail_world": [
+        -0.189,
+        -0.0992,
+        0.014
+      ]
     },
     {
       "name": "r_ringtoe2",
@@ -1808,7 +2948,17 @@
         ],
         "y": null,
         "z": null
-      }
+      },
+      "rest_head_world": [
+        -0.1894,
+        -0.0996,
+        0.0162
+      ],
+      "rest_tail_world": [
+        -0.1945,
+        -0.117,
+        0.0057
+      ]
     },
     {
       "name": "r_thumb1",
@@ -1816,7 +2966,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5361,
+        -0.0343,
+        0.9948
+      ],
+      "rest_tail_world": [
+        -0.5582,
+        -0.0566,
+        0.9689
+      ]
     },
     {
       "name": "r_thumb2",
@@ -1824,7 +2984,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5573,
+        -0.0591,
+        0.9704
+      ],
+      "rest_tail_world": [
+        -0.5742,
+        -0.071,
+        0.9511
+      ]
     },
     {
       "name": "r_thumb3",
@@ -1832,7 +3002,17 @@
       "category": "hand",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.5744,
+        -0.0718,
+        0.9516
+      ],
+      "rest_tail_world": [
+        -0.5913,
+        -0.0833,
+        0.9326
+      ]
     },
     {
       "name": "hip",
@@ -1840,7 +3020,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0,
+        -0.0059,
+        0.9625
+      ],
+      "rest_tail_world": [
+        0.0,
+        -0.0059,
+        0.7914
+      ]
     },
     {
       "name": "l_shin",
@@ -1848,7 +3038,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.1021,
+        0.0218,
+        0.496
+      ],
+      "rest_tail_world": [
+        0.1511,
+        0.0689,
+        0.0735
+      ]
     },
     {
       "name": "l_thigh",
@@ -1856,7 +3056,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0719,
+        -0.0094,
+        0.874
+      ],
+      "rest_tail_world": [
+        0.0915,
+        0.01,
+        0.4954
+      ]
     },
     {
       "name": "l_thightwist1",
@@ -1864,7 +3074,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0858,
+        -0.0013,
+        0.7468
+      ],
+      "rest_tail_world": [
+        0.0921,
+        0.0051,
+        0.6239
+      ]
     },
     {
       "name": "l_thightwist2",
@@ -1872,7 +3092,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0972,
+        0.0119,
+        0.6231
+      ],
+      "rest_tail_world": [
+        0.1035,
+        0.0182,
+        0.5003
+      ]
     },
     {
       "name": "pelvis",
@@ -1880,7 +3110,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0,
+        0.0021,
+        0.9822
+      ],
+      "rest_tail_world": [
+        0.0067,
+        -0.0111,
+        0.7798
+      ]
     },
     {
       "name": "r_shin",
@@ -1888,7 +3128,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0989,
+        0.0111,
+        0.4913
+      ],
+      "rest_tail_world": [
+        -0.1162,
+        0.0563,
+        0.0661
+      ]
     },
     {
       "name": "r_thigh",
@@ -1896,7 +3146,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0646,
+        -0.0104,
+        0.8696
+      ],
+      "rest_tail_world": [
+        -0.088,
+        -0.0004,
+        0.4908
+      ]
     },
     {
       "name": "r_thightwist1",
@@ -1904,7 +3164,17 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0798,
+        -0.0056,
+        0.7424
+      ],
+      "rest_tail_world": [
+        -0.0874,
+        -0.0023,
+        0.6194
+      ]
     },
     {
       "name": "r_thightwist2",
@@ -1912,7 +3182,35 @@
       "category": "leg",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0927,
+        0.0043,
+        0.6185
+      ],
+      "rest_tail_world": [
+        -0.1003,
+        0.0076,
+        0.4957
+      ]
+    },
+    {
+      "name": "Tools",
+      "parent": "spine1",
+      "category": "other",
+      "rotation_mode": "YZX",
+      "has_corrective_layer": false,
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.1442,
+        0.0452,
+        1.0556
+      ],
+      "rest_tail_world": [
+        -0.1923,
+        0.1026,
+        0.5695
+      ]
     },
     {
       "name": "l_infraorbital",
@@ -1933,7 +3231,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0232,
+        -0.0807,
+        1.5738
+      ],
+      "rest_tail_world": [
+        0.0232,
+        -0.0899,
+        1.5738
+      ]
     },
     {
       "name": "l_pectoral",
@@ -1941,7 +3249,17 @@
       "category": "other",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.049,
+        0.0174,
+        1.2679
+      ],
+      "rest_tail_world": [
+        0.0781,
+        -0.0526,
+        1.2804
+      ]
     },
     {
       "name": "l_squint",
@@ -1962,7 +3280,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0284,
+        -0.0884,
+        1.5861
+      ],
+      "rest_tail_world": [
+        0.0284,
+        -0.0959,
+        1.5861
+      ]
     },
     {
       "name": "lowerfacerig",
@@ -1970,7 +3298,17 @@
       "category": "other",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        0.0,
+        -0.0126,
+        1.5568
+      ],
+      "rest_tail_world": [
+        0.0,
+        -0.0879,
+        1.5239
+      ]
     },
     {
       "name": "r_infraorbital",
@@ -1991,7 +3329,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0232,
+        -0.0807,
+        1.5738
+      ],
+      "rest_tail_world": [
+        -0.0232,
+        -0.0899,
+        1.5738
+      ]
     },
     {
       "name": "r_pectoral",
@@ -1999,7 +3347,17 @@
       "category": "other",
       "rotation_mode": "YZX",
       "has_corrective_layer": true,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.05,
+        0.0174,
+        1.2657
+      ],
+      "rest_tail_world": [
+        -0.0797,
+        -0.0526,
+        1.2777
+      ]
     },
     {
       "name": "r_squint",
@@ -2020,7 +3378,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0284,
+        -0.0884,
+        1.5861
+      ],
+      "rest_tail_world": [
+        -0.0284,
+        -0.0959,
+        1.5861
+      ]
     },
     {
       "name": "upperfacerig",
@@ -2028,7 +3396,17 @@
       "category": "other",
       "rotation_mode": "YZX",
       "has_corrective_layer": false,
-      "rotation_limits_radians": null
+      "rotation_limits_radians": null,
+      "rest_head_world": [
+        -0.0,
+        0.0083,
+        1.5409
+      ],
+      "rest_tail_world": [
+        -0.0,
+        0.0079,
+        1.5742
+      ]
     },
     {
       "name": "head",
@@ -2049,7 +3427,17 @@
           -0.3491,
           0.3491
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        0.0083,
+        1.5409
+      ],
+      "rest_tail_world": [
+        -0.0,
+        0.0079,
+        1.5742
+      ]
     },
     {
       "name": "neck1",
@@ -2070,7 +3458,17 @@
           -0.6981,
           0.6981
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        0.0372,
+        1.4081
+      ],
+      "rest_tail_world": [
+        -0.0,
+        0.0277,
+        1.4722
+      ]
     },
     {
       "name": "neck2",
@@ -2091,7 +3489,17 @@
           -0.1745,
           0.1745
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        0.0085,
+        1.4688
+      ],
+      "rest_tail_world": [
+        -0.0,
+        -0.0021,
+        1.5396
+      ]
     },
     {
       "name": "spine1",
@@ -2112,7 +3520,17 @@
           -0.2618,
           0.2618
         ]
-      }
+      },
+      "rest_head_world": [
+        -0.0,
+        0.0063,
+        0.9819
+      ],
+      "rest_tail_world": [
+        -0.0,
+        0.0063,
+        1.0672
+      ]
     },
     {
       "name": "spine2",
@@ -2133,7 +3551,17 @@
           -0.4189,
           0.4189
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0,
+        0.0186,
+        1.0672
+      ],
+      "rest_tail_world": [
+        0.0,
+        0.0186,
+        1.1451
+      ]
     },
     {
       "name": "spine3",
@@ -2154,7 +3582,17 @@
           -0.3491,
           0.3491
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0,
+        0.038,
+        1.1481
+      ],
+      "rest_tail_world": [
+        0.0,
+        0.038,
+        1.2753
+      ]
     },
     {
       "name": "spine4",
@@ -2175,7 +3613,17 @@
           -0.1745,
           0.1745
         ]
-      }
+      },
+      "rest_head_world": [
+        0.0,
+        0.052,
+        1.2745
+      ],
+      "rest_tail_world": [
+        0.0,
+        0.052,
+        1.4048
+      ]
     }
   ]
 }
