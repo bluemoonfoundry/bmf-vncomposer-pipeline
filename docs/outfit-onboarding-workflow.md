@@ -32,10 +32,16 @@ drives it through the local DazScriptServer.** There is no headless
 fallback: if DazScriptServer/DAZ Studio isn't reachable, the fix is to get
 the GUI instance running again, not to fall back to a standalone process.
 
-1. **Build the scene interactively in DAZ Studio.** Load the character,
-   apply the outfit or hair via Smart Content as usual, let auto-fit run and
-   confirm any dialogs yourself, then `File > Save As` a `.duf` scene file
-   (or simply leave the scene open/loaded).
+1. **Build the scene interactively in DAZ Studio, then `File > Save As` a
+   `.duf` scene file.** Load the character, apply the outfit or hair via
+   Smart Content as usual, let auto-fit run and confirm any dialogs
+   yourself, then save. This step is not optional: the exported `.dbz`
+   embeds the scene's on-disk `filepath`, and Diffeomorphic's Blender
+   importer uses that to locate a same-named `.dbz`/`.json` sibling next to
+   the `.duf` for mesh fitting. A scene that was never saved exports with an
+   empty `filepath` and the importer silently imports nothing (verified in
+   scarecrow-czw). `scripts/onboard_character.py` handles staging the `.dbz`
+   next to the `.duf` automatically -- it just needs the `.duf` to exist.
 2. **Export the `.dbz`** by running `scripts/run_diffeomorphic_export.py`
    against that scene while DAZ Studio (with the DazScriptServer plugin,
    see [`docs/integration-setup.md`](integration-setup.md)) is still running:

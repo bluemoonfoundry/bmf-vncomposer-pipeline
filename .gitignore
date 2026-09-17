@@ -11,9 +11,11 @@ artifacts/*.blend
 artifacts/*.blend1
 artifacts/*.dbz
 artifacts/*.png
+artifacts/*.duf
 artifacts/**/*.blend
 artifacts/**/*.blend1
 artifacts/**/*.dbz
 artifacts/**/*.png
+artifacts/**/*.duf
 __pycache__/
 *.pyc

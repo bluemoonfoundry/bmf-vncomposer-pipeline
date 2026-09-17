@@ -27,8 +27,10 @@ Requires a live, GUI-resident DAZ Studio + DazScriptServer instance for step
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -57,6 +59,37 @@ def resolve_blender_exe(explicit: str | None, toolchain_path: Path = DEFAULT_TOO
 def _resolve_absolute(path_str: str | Path) -> Path:
     path = Path(path_str)
     return path.resolve() if path.is_absolute() else (REPO_ROOT / path).resolve()
+
+
+def stage_dbz_for_fitting(dbz_path: Path) -> Path:
+    """Copy dbz_path next to the source .duf it was exported from.
+
+    Diffeomorphic's DBZFILE fit mode (blender/import_daz_artifact.py's
+    easy_import_daz call) resolves the .dbz's embedded "filepath" to find the
+    source .duf, then looks for a same-named .dbz/.json file *in that .duf's
+    directory* to drive mesh fitting -- it ignores the path actually passed
+    to the importer. If the source scene was never saved (filepath left
+    empty), or the .dbz was never staged there, the importer silently
+    imports nothing rather than raising a Python-visible error.
+    """
+    with gzip.open(dbz_path, "rt", encoding="utf-8-sig") as handle:
+        duf_path_str = json.load(handle).get("filepath")
+
+    if not duf_path_str:
+        raise RuntimeError(
+            f"{dbz_path} has no source .duf filepath recorded -- the DAZ Studio "
+            "scene must be saved (File > Save As a .duf) before exporting, "
+            "otherwise Diffeomorphic's mesh fitting silently imports nothing."
+        )
+
+    duf_path = Path(duf_path_str)
+    if not duf_path.exists():
+        raise RuntimeError(f"{dbz_path} references source .duf {duf_path}, which does not exist")
+
+    staged_path = duf_path.with_suffix(".dbz")
+    if staged_path != dbz_path:
+        shutil.copyfile(dbz_path, staged_path)
+    return staged_path
 
 
 def import_dbz(
@@ -114,6 +147,7 @@ def onboard_character(
     export_timeout: float = 1800,
     registry_path: Path | str | None = None,
     export_fn=export_dbz,
+    stage_fn=stage_dbz_for_fitting,
     run=subprocess.run,
 ) -> dict:
     dbz_path = _resolve_absolute(dbz_out)
@@ -121,8 +155,9 @@ def onboard_character(
     root_paths_path = _resolve_absolute(root_paths) if root_paths else None
 
     export_fn(Path(daz_script), dbz_path, export_timeout)
+    staged_dbz_path = stage_fn(dbz_path)
 
-    collection_name = import_dbz(dbz_path, blend_path, character, root_paths_path, blender_exe, run)
+    collection_name = import_dbz(staged_dbz_path, blend_path, character, root_paths_path, blender_exe, run)
 
     registry = Registry.load(registry_path) if registry_path else Registry.load()
     registry.upsert_character(CharacterRecord(

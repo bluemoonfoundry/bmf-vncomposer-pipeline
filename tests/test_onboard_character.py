@@ -20,6 +20,10 @@ def _fake_export_fn(calls):
     return export_fn
 
 
+def _fake_stage_fn(dbz_path):
+    return Path(dbz_path)
+
+
 def _fake_run_factory(collection_name="JasonCross", returncode=0, stderr=""):
     calls = []
 
@@ -45,6 +49,7 @@ def test_onboard_character_writes_registry_entry(tmp_path):
         blender_exe="blender.exe",
         registry_path=registry_path,
         export_fn=_fake_export_fn(export_calls),
+        stage_fn=_fake_stage_fn,
         run=fake_run,
     )
 
@@ -70,6 +75,7 @@ def test_onboard_character_uses_absolute_paths_in_blender_command(tmp_path):
         blender_exe="blender.exe",
         registry_path=tmp_path / "registry.json",
         export_fn=_fake_export_fn([]),
+        stage_fn=_fake_stage_fn,
         run=fake_run,
     )
 
@@ -93,6 +99,7 @@ def test_onboard_character_passes_root_paths_when_given(tmp_path):
         root_paths=root_paths,
         registry_path=tmp_path / "registry.json",
         export_fn=_fake_export_fn([]),
+        stage_fn=_fake_stage_fn,
         run=fake_run,
     )
 
@@ -112,6 +119,7 @@ def test_onboard_character_omits_root_paths_when_not_given(tmp_path):
         blender_exe="blender.exe",
         registry_path=tmp_path / "registry.json",
         export_fn=_fake_export_fn([]),
+        stage_fn=_fake_stage_fn,
         run=fake_run,
     )
 
@@ -130,6 +138,7 @@ def test_onboard_character_raises_on_nonzero_blender_exit(tmp_path):
             blender_exe="blender.exe",
             registry_path=tmp_path / "registry.json",
             export_fn=_fake_export_fn([]),
+            stage_fn=_fake_stage_fn,
             run=fake_run,
         )
 
@@ -147,8 +156,42 @@ def test_onboard_character_raises_when_character_collection_missing(tmp_path):
             blender_exe="blender.exe",
             registry_path=tmp_path / "registry.json",
             export_fn=_fake_export_fn([]),
+            stage_fn=_fake_stage_fn,
             run=fake_run,
         )
+
+
+def test_stage_dbz_for_fitting_copies_next_to_source_duf(tmp_path):
+    import gzip
+    import json
+
+    duf_dir = tmp_path / "duf"
+    duf_dir.mkdir()
+    duf_path = duf_dir / "JasonCross.duf"
+    duf_path.write_text("", encoding="utf-8")
+
+    dbz_dir = tmp_path / "dbz"
+    dbz_dir.mkdir()
+    dbz_path = dbz_dir / "JasonCross.dbz"
+    with gzip.open(dbz_path, "wt", encoding="utf-8") as handle:
+        json.dump({"filepath": str(duf_path)}, handle)
+
+    staged_path = onboard_character.stage_dbz_for_fitting(dbz_path)
+
+    assert staged_path == duf_path.with_suffix(".dbz")
+    assert staged_path.exists()
+
+
+def test_stage_dbz_for_fitting_raises_when_scene_never_saved(tmp_path):
+    import gzip
+    import json
+
+    dbz_path = tmp_path / "JasonCross.dbz"
+    with gzip.open(dbz_path, "wt", encoding="utf-8") as handle:
+        json.dump({"filepath": ""}, handle)
+
+    with pytest.raises(RuntimeError, match="must be saved"):
+        onboard_character.stage_dbz_for_fitting(dbz_path)
 
 
 def test_resolve_blender_exe_prefers_explicit_override(tmp_path):

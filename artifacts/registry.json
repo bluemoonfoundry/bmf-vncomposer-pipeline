@@ -4,7 +4,16 @@
       "name": "JasonCross",
       "master_blend": "artifacts/JasonCross_imported.blend",
       "collection": "Jasoncross_v1",
-      "outfits": ["Outfit_WorkerUniform"],
+      "outfits": [
+        "Outfit_WorkerUniform"
+      ],
+      "hair": []
+    },
+    "AbbyMorgan": {
+      "name": "AbbyMorgan",
+      "master_blend": "Y:\\working\\BlueMoonFoundry\\bmf-scarecrow-service\\artifacts\\AbbyMorgan_imported.blend",
+      "collection": "AbbyMorgan",
+      "outfits": [],
       "hair": []
     }
   },

@@ -18,17 +18,24 @@ import sys
 import bpy
 
 
-def normalize_character_collection(collection_name, pre_root_children):
-    scene_root = bpy.context.scene.collection
-    new_top_level = [c for c in scene_root.children if c.name not in pre_root_children]
+def normalize_character_collection(collection_name, pre_import_container, pre_children):
+    """Wrap the collection(s) DAZ's importer created under pre_import_container.
+
+    DAZ's importer links new content into whatever collection was *active*
+    at import time (bpy.context.collection), not necessarily the scene root
+    -- in a fresh default-startup Blender scene that's the pre-existing
+    "Collection" holding the default Cube/Camera/Light, one level below the
+    scene root. Scanning only scene.collection.children misses it.
+    """
+    new_top_level = [c for c in pre_import_container.children if c.name not in pre_children]
     if not new_top_level:
         raise RuntimeError(
             f"No new top-level collection found after import; nothing to name {collection_name!r}"
         )
     target = bpy.data.collections.new(collection_name)
-    scene_root.children.link(target)
+    bpy.context.scene.collection.children.link(target)
     for collection in new_top_level:
-        scene_root.children.unlink(collection)
+        pre_import_container.children.unlink(collection)
         target.children.link(collection)
     return target
 
@@ -52,7 +59,8 @@ def main():
             GS.readDazPaths(json.load(handle), None, True)
         print("ROOT_PATHS_LOADED", api.get_absolute_path("/data/daz 3d/built-in content/daz iray pbrskin/pbrskin.dsf"))
 
-    pre_root_children = {c.name for c in bpy.context.scene.collection.children}
+    pre_import_container = bpy.context.view_layer.active_layer_collection.collection
+    pre_children = {c.name for c in pre_import_container.children}
 
     api.set_silent_mode(True)
     dbz = os.path.abspath(args.dbz)
@@ -81,7 +89,7 @@ def main():
     print("OBJECTS", len(bpy.data.objects), "MESHES", len(bpy.data.meshes), "ARMATURES", sum(obj.type == "ARMATURE" for obj in bpy.data.objects))
 
     if args.collection_name:
-        target = normalize_character_collection(args.collection_name, pre_root_children)
+        target = normalize_character_collection(args.collection_name, pre_import_container, pre_children)
         print("CHARACTER_COLLECTION", target.name)
 
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(args.blend))
