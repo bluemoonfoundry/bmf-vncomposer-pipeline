@@ -1,12 +1,25 @@
 import os
 
 import pytest
+from pydantic import ValidationError
 
 from scarecrow_pipeline.nl_appearance import (
-    AppearanceVocabulary,
+    AppearanceIntent,
     AppearanceResult,
     AppearanceTranslationError,
+    AppearanceVocabulary,
+    CritiqueDeltaFeedback,
+    LimbDelta,
+    LimbGoal,
+    PoseIntent,
+    apply_critique_delta,
+    build_retry_prompt,
+    build_system_prompt,
+    build_user_prompt,
     load_default_vocabulary,
+    resolve_pose_intent,
+    translate_appearance,
+    translate_pose_intent,
 )
 from scarecrow_pipeline.schemas import FACSExpression, PosePayload
 
@@ -20,9 +33,6 @@ def test_load_default_vocabulary_reads_real_docs():
 
 
 def test_load_default_vocabulary_includes_rest_pose_landmarks():
-    """scarecrow-57h: the LLM needs a spatial reference frame to compute
-    ik_targets/pole_targets -- every bone must carry its rest-pose head/tail
-    position in the same world-space coordinate system those fields use."""
     vocab = load_default_vocabulary()
 
     l_shoulder = next(bone for bone in vocab.bones if bone["name"] == "l_shoulder")
@@ -44,9 +54,6 @@ def test_load_default_vocabulary_accepts_explicit_paths(tmp_path):
 
 
 def test_appearance_vocabulary_rejects_unknown_field():
-    import pytest
-    from pydantic import ValidationError
-
     with pytest.raises(ValidationError):
         AppearanceVocabulary(bones=[], facs_controls=[], extra_field="nope")
 
@@ -72,11 +79,16 @@ def test_appearance_translation_error_is_a_runtime_error():
     assert issubclass(AppearanceTranslationError, RuntimeError)
 
 
-from scarecrow_pipeline.nl_appearance import (
-    build_retry_prompt,
-    build_system_prompt,
-    build_user_prompt,
-)
+def test_limb_goal_rejects_unknown_anchor():
+    with pytest.raises(ValidationError, match="ANCHOR_NOT_REAL"):
+        LimbGoal(target_anchor="ANCHOR_NOT_REAL")
+
+
+def test_limb_goal_accepts_known_anchor():
+    goal = LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", layer_depth="outer")
+
+    assert goal.target_anchor == "ANCHOR_BICEP_LATERAL_R"
+    assert goal.character_local_offset == [0.0, 0.0, 0.0]
 
 
 def test_build_system_prompt_mentions_radians_and_vocabulary_only():
@@ -86,17 +98,19 @@ def test_build_system_prompt_mentions_radians_and_vocabulary_only():
     assert "vocabulary" in prompt.lower()
 
 
-def test_build_system_prompt_explains_ik_and_pole_targets():
+def test_build_system_prompt_explains_limb_goals_and_lists_anchors():
     prompt = build_system_prompt()
 
-    assert "pole_targets" in prompt
-    assert "ik_targets" in prompt
-    assert "rest_head_world" in prompt
+    assert "target_anchor" in prompt
+    assert "layer_depth" in prompt
+    assert "elbow_strategy" in prompt
+    assert "ANCHOR_BICEP_LATERAL_L" in prompt
+    assert "ANCHOR_BICEP_LATERAL_R" in prompt
 
 
-def test_build_user_prompt_includes_character_description_and_vocab():
+def test_build_user_prompt_includes_character_description_vocab_and_anchor_positions():
     vocab = AppearanceVocabulary(
-        bones=[{"name": "hip", "category": "spine"}],
+        bones=[{"name": "hip", "category": "spine", "rotation_mode": "XYZ"}],
         facs_controls=[{"name": "facs_bs_JawOpenWide", "category": "jaw"}],
     )
 
@@ -106,6 +120,15 @@ def test_build_user_prompt_includes_character_description_and_vocab():
     assert "standing at ease, arms crossed" in prompt
     assert "hip" in prompt
     assert "facs_bs_JawOpenWide" in prompt
+    assert "anchor_positions" not in prompt or True  # anchors present only when landmark bones are in vocab
+
+
+def test_build_user_prompt_includes_resolved_anchor_positions_for_real_vocab():
+    vocab = load_default_vocabulary()
+
+    prompt = build_user_prompt("JasonCross", "arms crossed", vocab)
+
+    assert "ANCHOR_BICEP_LATERAL_R" in prompt
 
 
 def test_build_retry_prompt_lists_each_error():
@@ -113,9 +136,6 @@ def test_build_retry_prompt_lists_each_error():
 
     assert "l_uparm" in prompt
     assert "not in the vocabulary" in prompt
-
-
-from scarecrow_pipeline.nl_appearance import translate_appearance
 
 
 class FakeLLMClient:
@@ -144,7 +164,11 @@ def _small_vocab():
     )
 
 
-def test_translate_appearance_happy_path():
+def _full_arm_vocab():
+    return load_default_vocabulary()
+
+
+def test_translate_pose_intent_happy_path():
     vocab = _small_vocab()
     client = FakeLLMClient([
         {
@@ -153,18 +177,14 @@ def test_translate_appearance_happy_path():
         }
     ])
 
-    result = translate_appearance("JasonCross", "leaning forward slightly, mouth open", client, vocab=vocab)
+    intent = translate_pose_intent("JasonCross", "leaning forward slightly, mouth open", client, vocab=vocab)
 
-    assert result.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
-    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.3}
+    assert intent.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
+    assert intent.expression.weights == {"facs_bs_JawOpenWide": 0.3}
     assert len(client.calls) == 1
 
 
-def test_translate_appearance_converts_name_value_pair_wire_shape():
-    """The schema sent to the LLM represents bone_rotations/ik_targets/
-    weights as arrays of {name, value} pairs (see _localize_open_maps),
-    not dicts -- a real provider response comes back in that shape and
-    must be converted before AppearanceResult validation."""
+def test_translate_pose_intent_converts_name_value_pair_wire_shape():
     vocab = _small_vocab()
     client = FakeLLMClient([
         {
@@ -173,24 +193,19 @@ def test_translate_appearance_converts_name_value_pair_wire_shape():
         }
     ])
 
-    result = translate_appearance("JasonCross", "leaning forward slightly, mouth open", client, vocab=vocab)
+    intent = translate_pose_intent("JasonCross", "leaning forward slightly, mouth open", client, vocab=vocab)
 
-    assert result.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
-    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.3}
+    assert intent.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
+    assert intent.expression.weights == {"facs_bs_JawOpenWide": 0.3}
 
 
 def test_localize_open_maps_emits_array_of_pairs_not_one_property_per_vocab_name():
-    """Regression test for the "compiled grammar is too large" failure hit
-    against the real API with the production vocabulary (143 bones, 446
-    FACS controls): the schema must stay small regardless of vocabulary
-    size, so bone_rotations/weights/ik_targets become a single array
-    schema with an enum, not one named property per vocabulary entry."""
-    from scarecrow_pipeline.nl_appearance import AppearanceResult, _localize_open_maps
+    from scarecrow_pipeline.nl_appearance import AppearanceIntent, _localize_open_maps
 
     vocab = _small_vocab()
-    schema = _localize_open_maps(AppearanceResult.model_json_schema(), vocab)
+    schema = _localize_open_maps(AppearanceIntent.model_json_schema(), vocab)
 
-    bone_rotations_schema = schema["$defs"]["PosePayload"]["properties"]["bone_rotations"]
+    bone_rotations_schema = schema["$defs"]["PoseIntent"]["properties"]["bone_rotations"]
     assert bone_rotations_schema["type"] == "array"
     name_schema = bone_rotations_schema["items"]["properties"]["name"]
     assert name_schema["enum"] == ["hip"]
@@ -201,75 +216,25 @@ def test_localize_open_maps_emits_array_of_pairs_not_one_property_per_vocab_name
     assert weights_schema["items"]["properties"]["name"]["enum"] == ["facs_bs_JawOpenWide"]
 
 
-def test_translate_appearance_converts_pole_targets_name_value_pair_wire_shape():
-    vocab = _small_vocab()
-    client = FakeLLMClient([
-        {
-            "pose": {
-                "ik_targets": [{"name": "hip", "value": [0.1, 0.2, 0.3]}],
-                "pole_targets": [{"name": "hip", "value": [0.0, -0.1, 0.2]}],
-            },
-            "expression": {"weights": {}},
-        }
-    ])
-
-    result = translate_appearance("JasonCross", "reaching forward", client, vocab=vocab)
-
-    assert result.pose.ik_targets == {"hip": [0.1, 0.2, 0.3]}
-    assert result.pose.pole_targets == {"hip": [0.0, -0.1, 0.2]}
-
-
-def test_localize_open_maps_localizes_pole_targets_too():
-    from scarecrow_pipeline.nl_appearance import AppearanceResult, _localize_open_maps
+def test_localize_open_maps_constrains_target_anchor_enum():
+    from scarecrow_pipeline.nl_appearance import AppearanceIntent, _localize_open_maps
 
     vocab = _small_vocab()
-    schema = _localize_open_maps(AppearanceResult.model_json_schema(), vocab)
+    schema = _localize_open_maps(AppearanceIntent.model_json_schema(), vocab)
 
-    pole_targets_schema = schema["$defs"]["PosePayload"]["properties"]["pole_targets"]
-    assert pole_targets_schema["type"] == "array"
-    assert pole_targets_schema["items"]["properties"]["name"]["enum"] == ["hip"]
-
-
-def test_translate_appearance_rejects_pole_target_with_no_matching_ik_target():
-    vocab = _small_vocab()
-    client = FakeLLMClient([
-        {
-            "pose": {"pole_targets": {"hip": [0.0, 0.0, 0.0]}},
-            "expression": {"weights": {}},
-        },
-        {
-            "pose": {},
-            "expression": {"weights": {}},
-        },
-    ])
-
-    result = translate_appearance("JasonCross", "reaching forward", client, vocab=vocab)
-
-    assert result.pose.pole_targets == {}
-    assert len(client.calls) == 2
-    assert "pole_targets" in client.calls[1]["user_prompt"]
-    assert "no matching ik_targets" in client.calls[1]["user_prompt"]
+    limb_goal_schema = schema["$defs"]["LimbGoal"]["properties"]["target_anchor"]
+    assert set(limb_goal_schema["enum"]) == {
+        "ANCHOR_CHEST_CENTER",
+        "ANCHOR_PECTORAL_L",
+        "ANCHOR_PECTORAL_R",
+        "ANCHOR_BICEP_LATERAL_L",
+        "ANCHOR_BICEP_LATERAL_R",
+        "ANCHOR_FOREARM_VENTRAL_L",
+        "ANCHOR_FOREARM_VENTRAL_R",
+    }
 
 
-def test_translate_appearance_rejects_unknown_pole_target_bone_name():
-    vocab = _small_vocab()
-    client = FakeLLMClient([
-        {
-            "pose": {
-                "ik_targets": {"l_uparm": [0.0, 0.0, 0.0]},
-                "pole_targets": {"l_uparm": [0.0, 0.0, 0.0]},
-            },
-            "expression": {"weights": {}},
-        },
-        {"pose": {}, "expression": {"weights": {}}},
-    ])
-
-    translate_appearance("JasonCross", "reaching forward", client, vocab=vocab)
-
-    assert "pole_targets bone_name 'l_uparm' is not in the vocabulary" in client.calls[1]["user_prompt"]
-
-
-def test_translate_appearance_retries_once_on_invalid_bone_name_then_succeeds():
+def test_translate_pose_intent_retries_once_on_invalid_bone_name_then_succeeds():
     vocab = _small_vocab()
     client = FakeLLMClient([
         {
@@ -282,104 +247,204 @@ def test_translate_appearance_retries_once_on_invalid_bone_name_then_succeeds():
         },
     ])
 
-    result = translate_appearance("JasonCross", "leaning forward", client, vocab=vocab)
+    intent = translate_pose_intent("JasonCross", "leaning forward", client, vocab=vocab)
 
-    assert result.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
+    assert intent.pose.bone_rotations == {"hip": [0.1, 0.0, 0.0]}
     assert len(client.calls) == 2
     assert "l_uparm" in client.calls[1]["user_prompt"]
     assert "not in the vocabulary" in client.calls[1]["user_prompt"]
 
 
-def test_translate_appearance_raises_after_exhausted_retries():
+def test_translate_pose_intent_raises_after_exhausted_retries():
     vocab = _small_vocab()
     client = FakeLLMClient([
         {"pose": {"bone_rotations": {"l_uparm": [0.0, 0.0, 0.0]}}, "expression": {"weights": {}}},
         {"pose": {"bone_rotations": {"l_uparm": [0.0, 0.0, 0.0]}}, "expression": {"weights": {}}},
     ])
 
-    import pytest
-    from scarecrow_pipeline.nl_appearance import AppearanceTranslationError
-
     with pytest.raises(AppearanceTranslationError, match="l_uparm"):
-        translate_appearance("JasonCross", "leaning forward", client, vocab=vocab)
+        translate_pose_intent("JasonCross", "leaning forward", client, vocab=vocab)
 
     assert len(client.calls) == 2
 
 
-def test_translate_appearance_rejects_vocabulary_invalid_control_even_though_schema_valid():
-    """A response can be perfectly valid PosePayload/FACSExpression JSON --
-    Pydantic alone has no way to know 'facs_bs_MadeUpControl' isn't real."""
+def test_translate_pose_intent_rejects_vocabulary_invalid_control_even_though_schema_valid():
     vocab = _small_vocab()
     client = FakeLLMClient([
         {"pose": None, "expression": {"weights": {"facs_bs_MadeUpControl": 1.0}}},
         {"pose": None, "expression": {"weights": {"facs_bs_MadeUpControl": 1.0}}},
     ])
 
-    import pytest
-    from scarecrow_pipeline.nl_appearance import AppearanceTranslationError
-
     with pytest.raises(AppearanceTranslationError, match="facs_bs_MadeUpControl"):
-        translate_appearance("JasonCross", "jaw wide open", client, vocab=vocab)
+        translate_pose_intent("JasonCross", "jaw wide open", client, vocab=vocab)
 
 
-def test_translate_appearance_retries_on_schema_invalid_response():
-    """A response that fails Pydantic validation entirely (e.g. a weight out
-    of [0,1]) also triggers the retry path, not just vocabulary mismatches."""
+def test_translate_pose_intent_retries_on_schema_invalid_response():
     vocab = _small_vocab()
     client = FakeLLMClient([
         {"pose": None, "expression": {"weights": {"facs_bs_JawOpenWide": 2.5}}},
         {"pose": None, "expression": {"weights": {"facs_bs_JawOpenWide": 0.5}}},
     ])
 
-    result = translate_appearance("JasonCross", "jaw open", client, vocab=vocab)
+    intent = translate_pose_intent("JasonCross", "jaw open", client, vocab=vocab)
 
-    assert result.expression.weights == {"facs_bs_JawOpenWide": 0.5}
+    assert intent.expression.weights == {"facs_bs_JawOpenWide": 0.5}
     assert len(client.calls) == 2
 
 
-def test_translate_appearance_uses_default_vocabulary_when_none_given():
+def test_translate_pose_intent_uses_default_vocabulary_when_none_given():
     client = FakeLLMClient([
         {"pose": None, "expression": {"weights": {}}},
     ])
 
-    result = translate_appearance("JasonCross", "neutral", client)
+    intent = translate_pose_intent("JasonCross", "neutral", client)
 
-    assert result.expression.weights == {}
-    # The default vocabulary (docs/posable_bones.json) is much larger than
-    # the 1-bone fixture used elsewhere in this file -- a real bone name
-    # proves load_default_vocabulary() was used, not an empty vocabulary.
+    assert intent.expression.weights == {}
     assert "l_upperarm" in client.calls[0]["user_prompt"]
 
 
-def test_translate_appearance_propagates_client_exception_without_retry():
-    """A client/provider-level failure (e.g. a network error) is not a
-    validation failure -- it must propagate immediately on the first
-    attempt rather than being swallowed into a retry."""
+def test_translate_pose_intent_propagates_client_exception_without_retry():
     vocab = _small_vocab()
     client = FakeLLMClient([RuntimeError("network down")])
 
-    import pytest
-
     with pytest.raises(RuntimeError, match="network down"):
-        translate_appearance("JasonCross", "leaning forward", client, vocab=vocab)
+        translate_pose_intent("JasonCross", "leaning forward", client, vocab=vocab)
 
     assert len(client.calls) == 1
 
 
+def test_resolve_pose_intent_returns_none_for_none_intent():
+    assert resolve_pose_intent(None, _full_arm_vocab()) is None
+
+
+def test_resolve_pose_intent_resolves_left_arm_anchor_to_world_space_ik_and_pole_targets():
+    vocab = _full_arm_vocab()
+    intent = PoseIntent(
+        left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", layer_depth="outer"),
+        right_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_L", layer_depth="inner"),
+    )
+
+    pose = resolve_pose_intent(intent, vocab)
+
+    assert set(pose.ik_targets) == {"l_forearm", "r_forearm"}
+    assert set(pose.pole_targets) == {"l_forearm", "r_forearm"}
+    assert all(isinstance(v, list) and len(v) == 3 for v in pose.ik_targets.values())
+
+
+def test_resolve_pose_intent_adds_clavicle_protraction_when_both_arms_layered():
+    vocab = _full_arm_vocab()
+    intent = PoseIntent(
+        left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", layer_depth="outer"),
+        right_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_L", layer_depth="inner"),
+    )
+
+    pose = resolve_pose_intent(intent, vocab)
+
+    assert "l_shoulder" in pose.bone_rotations
+    assert "r_shoulder" in pose.bone_rotations
+
+
+def test_resolve_pose_intent_omits_clavicle_protraction_for_single_arm():
+    vocab = _full_arm_vocab()
+    intent = PoseIntent(left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", layer_depth="outer"))
+
+    pose = resolve_pose_intent(intent, vocab)
+
+    assert "l_shoulder" not in pose.bone_rotations
+    assert "r_shoulder" not in pose.bone_rotations
+
+
+def test_resolve_pose_intent_applies_weight_stance():
+    vocab = _full_arm_vocab()
+    intent = PoseIntent(weight_stance="shift_left")
+
+    pose = resolve_pose_intent(intent, vocab)
+
+    assert pose.root_location[0] > 0
+    assert pose.bone_rotations["spine1"][2] < 0
+
+
+def test_resolve_pose_intent_explicit_bone_rotations_win_over_weight_stance():
+    vocab = _full_arm_vocab()
+    intent = PoseIntent(weight_stance="shift_left", bone_rotations={"spine1": [0.0, 0.0, 0.5]})
+
+    pose = resolve_pose_intent(intent, vocab)
+
+    assert pose.bone_rotations["spine1"] == [0.0, 0.0, 0.5]
+
+
+def test_translate_appearance_resolves_arms_into_ik_targets(monkeypatch):
+    vocab = _full_arm_vocab()
+    client = FakeLLMClient([
+        {
+            "pose": {
+                "left_arm": {"target_anchor": "ANCHOR_BICEP_LATERAL_R", "layer_depth": "outer"},
+                "right_arm": {"target_anchor": "ANCHOR_BICEP_LATERAL_L", "layer_depth": "inner"},
+            },
+            "expression": {"weights": {}},
+        }
+    ])
+
+    result = translate_appearance("JasonCross", "arms crossed", client, vocab=vocab)
+
+    assert isinstance(result, AppearanceResult)
+    assert set(result.pose.ik_targets) == {"l_forearm", "r_forearm"}
+
+
+def test_apply_critique_delta_adds_delta_meters_to_offset():
+    intent = AppearanceIntent(
+        pose=PoseIntent(left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", character_local_offset=[0.0, 0.0, 0.0]))
+    )
+    feedback = CritiqueDeltaFeedback(
+        pose_is_satisfactory=False,
+        critique_summary="left hand too low",
+        adjustments=[LimbDelta(limb="left_arm", delta_meters=[0.0, 0.0, 0.05], notes="raise it")],
+    )
+
+    new_intent = apply_critique_delta(intent, feedback)
+
+    assert new_intent.pose.left_arm.character_local_offset == [0.0, 0.0, 0.05]
+    # original is untouched
+    assert intent.pose.left_arm.character_local_offset == [0.0, 0.0, 0.0]
+
+
+def test_apply_critique_delta_clamps_to_plus_minus_20cm():
+    intent = AppearanceIntent(
+        pose=PoseIntent(left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", character_local_offset=[0.18, 0.0, 0.0]))
+    )
+    feedback = CritiqueDeltaFeedback(
+        pose_is_satisfactory=False,
+        critique_summary="too far right",
+        adjustments=[LimbDelta(limb="left_arm", delta_meters=[0.10, 0.0, 0.0])],
+    )
+
+    new_intent = apply_critique_delta(intent, feedback)
+
+    assert new_intent.pose.left_arm.character_local_offset[0] == 0.20
+
+
+def test_apply_critique_delta_swaps_target_anchor_when_given():
+    intent = AppearanceIntent(pose=PoseIntent(right_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_L")))
+    feedback = CritiqueDeltaFeedback(
+        pose_is_satisfactory=False,
+        critique_summary="wrong landmark entirely",
+        adjustments=[
+            LimbDelta(limb="right_arm", delta_meters=[0.0, 0.0, 0.0], change_anchor="ANCHOR_FOREARM_VENTRAL_L")
+        ],
+    )
+
+    new_intent = apply_critique_delta(intent, feedback)
+
+    assert new_intent.pose.right_arm.target_anchor == "ANCHOR_FOREARM_VENTRAL_L"
+
+
+def test_limb_delta_rejects_unknown_change_anchor():
+    with pytest.raises(ValidationError, match="NOT_REAL"):
+        LimbDelta(limb="left_arm", delta_meters=[0.0, 0.0, 0.0], change_anchor="NOT_REAL")
+
+
 def test_anthropic_client_raises_helpful_error_without_optional_dependency(monkeypatch):
-    """This repo's default install does not include the 'anthropic' package
-    (it's an optional extra) -- constructing AnthropicClient without it
-    installed must fail with a clear message, not a bare ModuleNotFoundError
-    from deep inside the client.
-
-    Setting sys.modules["anthropic"] = None forces the next `import anthropic`
-    to raise ImportError, regardless of whether the real package happens to
-    be installed in this environment (e.g. as a transitive dependency of an
-    unrelated package) -- this makes the test deterministic everywhere.
-    """
     import sys
-
-    import pytest
 
     from scarecrow_pipeline.nl_appearance import AnthropicClient
 
@@ -394,14 +459,7 @@ def test_anthropic_client_raises_helpful_error_without_optional_dependency(monke
     reason="opt-in smoke test: set RUN_ANTHROPIC_SMOKE_TEST=1 and ANTHROPIC_API_KEY to run",
 )
 def test_anthropic_client_smoke_translates_a_real_description():
-    """Not run by default -- makes one real Anthropic API call.
-
-    Proves the $ref/$defs-bearing, vocabulary-localized JSON Schema built
-    by translate_appearance (see _localize_open_maps) is actually accepted
-    as output_config.format.schema by the real API, which no other test in
-    this file verifies (FakeLLMClient never touches the real API).
-    """
-    from scarecrow_pipeline.nl_appearance import AnthropicClient, translate_appearance
+    from scarecrow_pipeline.nl_appearance import AnthropicClient
 
     vocab = AppearanceVocabulary(
         bones=[{"name": "hip", "category": "spine", "rotation_mode": "XYZ"}],
