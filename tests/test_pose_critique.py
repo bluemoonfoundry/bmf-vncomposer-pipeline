@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scarecrow_pipeline.nl_appearance import AppearanceVocabulary, PoseCritique
+from scarecrow_pipeline.nl_appearance import AppearanceVocabulary, CritiqueDeltaFeedback, LimbDelta
 from scarecrow_pipeline.pose_critique import (
     RenderFailedError,
     RenderOutcome,
@@ -21,20 +21,26 @@ class FakeLLMClient:
 
 
 class FakeVisionClient:
-    """Returns queued PoseCritique verdicts in order; records every call made."""
+    """Returns queued CritiqueDeltaFeedback verdicts in order; records every call made."""
 
     def __init__(self, verdicts):
         self._verdicts = list(verdicts)
         self.calls = []
 
-    def critique_pose(self, description, image_bytes):
-        self.calls.append({"description": description, "image_bytes": image_bytes})
+    def critique_pose(self, description, image_bytes, current_intent):
+        self.calls.append({"description": description, "image_bytes": image_bytes, "current_intent": current_intent})
         return self._verdicts.pop(0)
 
 
 def _small_vocab():
     return AppearanceVocabulary(
-        bones=[{"name": "hip", "category": "spine", "rotation_mode": "XYZ"}],
+        bones=[
+            {"name": "hip", "category": "spine", "rotation_mode": "XYZ"},
+            {"name": "r_forearm", "category": "arm", "rotation_mode": "XYZ",
+             "rest_head_world": [-0.3334, 0.0495, 1.1769], "rest_tail_world": [-0.45, 0.05, 0.95]},
+            {"name": "r_upperarm", "category": "arm", "rotation_mode": "XYZ",
+             "rest_head_world": [-0.1774, 0.0524, 1.3542], "rest_tail_world": [-0.3334, 0.0495, 1.1769]},
+        ],
         facs_controls=[],
     )
 
@@ -64,7 +70,7 @@ def test_run_with_critique_passes_on_first_attempt(tmp_path):
         {"pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}}, "expression": {"weights": {}}},
     ])
     vision_client = FakeVisionClient([
-        PoseCritique(matches_description=True, critique="looks right"),
+        CritiqueDeltaFeedback(pose_is_satisfactory=True, critique_summary="looks right"),
     ])
     render_fn = _fake_render_fn(tmp_path / "out.png")
 
@@ -81,17 +87,25 @@ def test_run_with_critique_passes_on_first_attempt(tmp_path):
     assert outcome["matches_description"] is True
     assert outcome["attempts"] == 1
     assert len(render_fn.calls) == 1
+    # Only translated once -- no re-translation needed to pass on attempt 1.
+    assert len(translate_client.calls) == 1
 
 
-def test_run_with_critique_retries_with_corrective_context_then_passes(tmp_path):
+def test_run_with_critique_applies_numeric_delta_without_retranslating_then_passes(tmp_path):
     vocab = _small_vocab()
     translate_client = FakeLLMClient([
-        {"pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}}, "expression": {"weights": {}}},
-        {"pose": {"bone_rotations": {"hip": [0.2, 0.0, 0.0]}}, "expression": {"weights": {}}},
+        {
+            "pose": {"right_arm": {"target_anchor": "ANCHOR_BICEP_LATERAL_R", "character_local_offset": [0.0, 0.0, 0.0]}},
+            "expression": {"weights": {}},
+        },
     ])
     vision_client = FakeVisionClient([
-        PoseCritique(matches_description=False, critique="arms are not crossed"),
-        PoseCritique(matches_description=True, critique="looks right now"),
+        CritiqueDeltaFeedback(
+            pose_is_satisfactory=False,
+            critique_summary="right arm too low",
+            adjustments=[LimbDelta(limb="right_arm", delta_meters=[0.0, 0.0, 0.05], notes="raise it")],
+        ),
+        CritiqueDeltaFeedback(pose_is_satisfactory=True, critique_summary="looks right now"),
     ])
     render_fn = _fake_render_fn(tmp_path / "out.png")
 
@@ -108,19 +122,34 @@ def test_run_with_critique_retries_with_corrective_context_then_passes(tmp_path)
     assert outcome["status"] == "ok"
     assert outcome["matches_description"] is True
     assert outcome["attempts"] == 2
-    # The critique from attempt 1 must be folded into attempt 2's translate call.
-    assert "arms are not crossed" in translate_client.calls[1]["user_prompt"]
+    # The pose-generation LLM is called exactly once -- the second attempt's
+    # pose comes from apply_critique_delta, not a fresh translate call.
+    assert len(translate_client.calls) == 1
+    # attempt 2's resolved ik_target must have moved up (+z) from attempt 1's.
+    attempt_1_target = render_fn.calls[0]["result"].pose.ik_targets["r_forearm"]
+    attempt_2_target = render_fn.calls[1]["result"].pose.ik_targets["r_forearm"]
+    assert attempt_2_target[2] > attempt_1_target[2]
 
 
 def test_run_with_critique_returns_best_effort_after_exhausting_attempts(tmp_path):
     vocab = _small_vocab()
     translate_client = FakeLLMClient([
-        {"pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}}, "expression": {"weights": {}}},
-        {"pose": {"bone_rotations": {"hip": [0.2, 0.0, 0.0]}}, "expression": {"weights": {}}},
+        {
+            "pose": {"right_arm": {"target_anchor": "ANCHOR_BICEP_LATERAL_R"}},
+            "expression": {"weights": {}},
+        },
     ])
     vision_client = FakeVisionClient([
-        PoseCritique(matches_description=False, critique="still wrong"),
-        PoseCritique(matches_description=False, critique="still wrong again"),
+        CritiqueDeltaFeedback(
+            pose_is_satisfactory=False,
+            critique_summary="still wrong",
+            adjustments=[LimbDelta(limb="right_arm", delta_meters=[0.0, 0.0, 0.02])],
+        ),
+        CritiqueDeltaFeedback(
+            pose_is_satisfactory=False,
+            critique_summary="still wrong again",
+            adjustments=[LimbDelta(limb="right_arm", delta_meters=[0.0, 0.0, 0.02])],
+        ),
     ])
     render_fn = _fake_render_fn(tmp_path / "out.png")
 
