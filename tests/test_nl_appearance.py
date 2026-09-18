@@ -91,21 +91,34 @@ def test_limb_goal_accepts_known_anchor():
     assert goal.character_local_offset == [0.0, 0.0, 0.0]
 
 
+def test_limb_goal_clamps_character_local_offset_to_plus_minus_15cm():
+    goal = LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", character_local_offset=[1.5, -0.3, 0.05])
+
+    assert goal.character_local_offset == [0.15, -0.15, 0.05]
+
+
 def test_build_system_prompt_mentions_radians_and_vocabulary_only():
-    prompt = build_system_prompt()
+    prompt = build_system_prompt(_small_vocab())
 
     assert "radians" in prompt.lower()
     assert "vocabulary" in prompt.lower()
 
 
 def test_build_system_prompt_explains_limb_goals_and_lists_anchors():
-    prompt = build_system_prompt()
+    prompt = build_system_prompt(_full_arm_vocab())
 
     assert "target_anchor" in prompt
     assert "layer_depth" in prompt
     assert "elbow_strategy" in prompt
     assert "ANCHOR_BICEP_LATERAL_L" in prompt
     assert "ANCHOR_BICEP_LATERAL_R" in prompt
+
+
+def test_build_system_prompt_omits_anchors_whose_landmark_bone_is_missing():
+    prompt = build_system_prompt(_small_vocab())
+
+    assert "ANCHOR_BICEP_LATERAL_L" not in prompt
+    assert "ANCHOR_BICEP_LATERAL_R" not in prompt
 
 
 def test_build_user_prompt_includes_character_description_vocab_and_anchor_positions():
@@ -219,7 +232,7 @@ def test_localize_open_maps_emits_array_of_pairs_not_one_property_per_vocab_name
 def test_localize_open_maps_constrains_target_anchor_enum():
     from scarecrow_pipeline.nl_appearance import AppearanceIntent, _localize_open_maps
 
-    vocab = _small_vocab()
+    vocab = _full_arm_vocab()
     schema = _localize_open_maps(AppearanceIntent.model_json_schema(), vocab)
 
     limb_goal_schema = schema["$defs"]["LimbGoal"]["properties"]["target_anchor"]
@@ -232,6 +245,16 @@ def test_localize_open_maps_constrains_target_anchor_enum():
         "ANCHOR_FOREARM_VENTRAL_L",
         "ANCHOR_FOREARM_VENTRAL_R",
     }
+
+
+def test_localize_open_maps_omits_target_anchor_enum_entries_missing_landmark_bones():
+    from scarecrow_pipeline.nl_appearance import AppearanceIntent, _localize_open_maps
+
+    vocab = _small_vocab()  # only "hip" -- no anchor landmark bones present
+    schema = _localize_open_maps(AppearanceIntent.model_json_schema(), vocab)
+
+    limb_goal_schema = schema["$defs"]["LimbGoal"]["properties"]["target_anchor"]
+    assert limb_goal_schema["enum"] == []
 
 
 def test_translate_pose_intent_retries_once_on_invalid_bone_name_then_succeeds():

@@ -80,6 +80,15 @@ class LimbGoal(BaseModel):
             raise ValueError(f"target_anchor {value!r} is not in anchors.ANCHOR_NAMES")
         return value
 
+    @field_validator("character_local_offset")
+    @classmethod
+    def _clamp_offset(cls, value: Vector3) -> Vector3:
+        # Match the [-0.15, 0.15] range documented above and in
+        # build_system_prompt -- anchors.clamp_offset's own 0.20 default is
+        # for the wider critique-delta path (LimbDelta/apply_critique_delta),
+        # not the LLM's initial placement.
+        return anchors.clamp_offset(list(value), limit=0.15)
+
 
 class PoseIntent(BaseModel):
     """LLM-facing pose wire shape -- resolved into a concrete PosePayload
@@ -217,9 +226,21 @@ def load_default_vocabulary(
     return AppearanceVocabulary(bones=bones, facs_controls=facs_controls)
 
 
-def build_system_prompt() -> str:
+def _available_anchor_names(vocab: AppearanceVocabulary) -> list[str]:
+    """anchors.ANCHOR_NAMES filtered down to anchors whose landmark bone is
+    actually present in the given vocab -- so the LLM (via the system
+    prompt's anchor list and the schema's target_anchor enum) is never
+    offered an anchor that resolve_pose_intent can't resolve for this
+    vocabulary. Mirrors build_user_prompt's existing anchor_positions
+    filter."""
+    bone_landmarks = vocab.bone_landmarks
+    return [name for name in anchors.ANCHOR_NAMES if anchors.ANCHOR_LANDMARKS[name][0] in bone_landmarks]
+
+
+def build_system_prompt(vocab: AppearanceVocabulary) -> str:
+    available_anchors = _available_anchor_names(vocab)
     anchor_lines = "\n".join(
-        f"    - {name}: {anchors.ANCHOR_DESCRIPTIONS[name]}" for name in anchors.ANCHOR_NAMES
+        f"    - {name}: {anchors.ANCHOR_DESCRIPTIONS[name]}" for name in available_anchors
     )
     return (
         "You translate a natural-language character appearance description "
@@ -343,7 +364,10 @@ def _localize_open_maps(schema: dict, vocab: AppearanceVocabulary) -> dict:
     """Rewrite bone_rotations/weights from an open-ended
     ``additionalProperties``-keyed map into a JSON array of {name, value}
     objects, with "name" constrained to an enum of the vocabulary, AND
-    constrain every LimbGoal.target_anchor property to anchors.ANCHOR_NAMES.
+    constrain every LimbGoal.target_anchor property to the anchors whose
+    landmark bone is present in vocab (see _available_anchor_names) -- an
+    anchor resolve_pose_intent can't resolve for this vocab is never
+    offered to the LLM in the first place.
 
     Providers' native structured-output modes (e.g. Anthropic's
     output_config.format) require additionalProperties: false on every
@@ -359,6 +383,7 @@ def _localize_open_maps(schema: dict, vocab: AppearanceVocabulary) -> dict:
     field_vocab = {
         title: getattr(vocab, attr) for title, attr in _OPEN_MAP_VOCAB_TITLES.items()
     }
+    available_anchors = _available_anchor_names(vocab)
 
     def walk(node):
         if isinstance(node, dict):
@@ -383,7 +408,7 @@ def _localize_open_maps(schema: dict, vocab: AppearanceVocabulary) -> dict:
             if isinstance(properties, dict) and "target_anchor" in properties:
                 properties["target_anchor"] = {
                     **properties["target_anchor"],
-                    "enum": list(anchors.ANCHOR_NAMES),
+                    "enum": available_anchors,
                 }
             return node
         if isinstance(node, list):
@@ -509,7 +534,7 @@ def translate_pose_intent(
 ) -> AppearanceIntent:
     vocab = vocab or load_default_vocabulary()
     schema = _strip_unsupported_keywords(_localize_open_maps(AppearanceIntent.model_json_schema(), vocab))
-    system_prompt = build_system_prompt()
+    system_prompt = build_system_prompt(vocab)
     base_user_prompt = build_user_prompt(character, description, vocab, extra_context=extra_context)
 
     errors: list[str] = []
