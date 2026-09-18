@@ -142,8 +142,10 @@ def apply_appearance(
     When vision_client is None (the default), behaves exactly as before:
     one translate_appearance() call, one render, returns
     {status, output_path, request_path, stderr?}. When vision_client is
-    given, renders are critiqued against `description` and retried (with the
-    critique fed back into the next translate_appearance() call) up to
+    given, translate_appearance() is still called only once; each retry
+    instead renders, gets a vision critique of that render, and applies the
+    critique's numeric per-limb deltas directly to the previous attempt's
+    pose state (no further LLM pose-translation calls) up to
     max_render_attempts -- see scarecrow_pipeline/pose_critique.py. Raises
     ValueError up front if `character` isn't in the registry, since there is
     no master_blend to apply the appearance to.

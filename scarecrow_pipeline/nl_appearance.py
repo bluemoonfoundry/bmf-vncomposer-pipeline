@@ -7,7 +7,9 @@ Blender (blender/worker.py's apply_pose/apply_expression) so they can be
 driven by natural language. This module is the translation step
 scarecrow_pipeline/scene_tags.py calls "a separate, out-of-scope LLM
 step" -- see
-docs/superpowers/specs/2026-09-16-nl-appearance-translator-design.md.
+docs/superpowers/specs/2026-09-16-nl-appearance-translator-design.md. Note:
+that doc's description of the pose contract (raw-float ik_targets/pole_targets
+sent to the LLM) is superseded by docs/gemini_ikplan_a.md.
 
 Arm IK goals are LLM-facing as a discrete anchor + small offset
 (LimbGoal/PoseIntent), not raw world-space floats -- see
@@ -676,6 +678,6 @@ class AnthropicClient:
             f"Current arm state:\n{current_state}\n\n"
             "Does this critique conclude the pose matches the description well enough to "
             "accept, or does it call out a mismatch that should be corrected?",
-            CritiqueDeltaFeedback.model_json_schema(),
+            _strip_unsupported_keywords(CritiqueDeltaFeedback.model_json_schema()),
         )
         return CritiqueDeltaFeedback.model_validate(verdict_raw)

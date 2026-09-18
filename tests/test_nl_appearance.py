@@ -1,3 +1,4 @@
+import json
 import os
 
 import pytest
@@ -133,7 +134,6 @@ def test_build_user_prompt_includes_character_description_vocab_and_anchor_posit
     assert "standing at ease, arms crossed" in prompt
     assert "hip" in prompt
     assert "facs_bs_JawOpenWide" in prompt
-    assert "anchor_positions" not in prompt or True  # anchors present only when landmark bones are in vocab
 
 
 def test_build_user_prompt_includes_resolved_anchor_positions_for_real_vocab():
@@ -396,7 +396,7 @@ def test_resolve_pose_intent_explicit_bone_rotations_win_over_weight_stance():
     assert pose.bone_rotations["spine1"] == [0.0, 0.0, 0.5]
 
 
-def test_translate_appearance_resolves_arms_into_ik_targets(monkeypatch):
+def test_translate_appearance_resolves_arms_into_ik_targets():
     vocab = _full_arm_vocab()
     client = FakeLLMClient([
         {
@@ -493,3 +493,76 @@ def test_anthropic_client_smoke_translates_a_real_description():
     result = translate_appearance("JasonCross", "standing at ease", client, vocab=vocab)
 
     assert isinstance(result, AppearanceResult)
+
+
+def _fake_text_block(text):
+    class _Block:
+        type = "text"
+
+        def __init__(self, text):
+            self.text = text
+
+    return _Block(text)
+
+
+def test_critique_pose_strips_min_max_items_from_sent_schema_and_returns_feedback():
+    from scarecrow_pipeline.nl_appearance import AnthropicClient
+
+    client = AnthropicClient()
+
+    sent_schemas = []
+    sent_kwargs = []
+
+    class FakeMessages:
+        def create(self, **kwargs):
+            sent_kwargs.append(kwargs)
+            if "output_config" not in kwargs:
+                # First call: the vision critique call.
+                return type("Resp", (), {"content": [_fake_text_block("left_arm is too far forward")]})()
+            # Second call: the structured-extraction complete_json call.
+            schema = kwargs["output_config"]["format"]["schema"]
+            sent_schemas.append(schema)
+            payload = {
+                "pose_is_satisfactory": False,
+                "critique_summary": "left_arm is too far forward",
+                "adjustments": [
+                    {
+                        "limb": "left_arm",
+                        "delta_meters": [0.0, -0.02, 0.0],
+                        "change_anchor": None,
+                        "notes": "pull back",
+                    }
+                ],
+            }
+            return type("Resp", (), {"content": [_fake_text_block(json.dumps(payload))]})()
+
+    class FakeAnthropicClient:
+        messages = FakeMessages()
+
+    client._client = FakeAnthropicClient()
+
+    current_intent = PoseIntent(
+        left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", character_local_offset=[0.0, 0.0, 0.0]),
+        right_arm=None,
+    )
+
+    feedback = client.critique_pose("arms crossed", b"fake-image-bytes", current_intent)
+
+    assert isinstance(feedback, CritiqueDeltaFeedback)
+    assert feedback.pose_is_satisfactory is False
+    assert feedback.adjustments[0].limb == "left_arm"
+
+    assert len(sent_schemas) == 1
+    schema = sent_schemas[0]
+
+    def _walk(node):
+        if isinstance(node, dict):
+            assert "minItems" not in node
+            assert "maxItems" not in node
+            for value in node.values():
+                _walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                _walk(item)
+
+    _walk(schema)
