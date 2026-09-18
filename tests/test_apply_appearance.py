@@ -167,13 +167,13 @@ def test_apply_appearance_reports_failed_status_on_nonzero_blender_exit(tmp_path
 
 
 class FakeVisionClient:
-    """Returns queued PoseCritique verdicts in order."""
+    """Returns queued CritiqueDeltaFeedback verdicts in order."""
 
     def __init__(self, verdicts):
         self._verdicts = list(verdicts)
         self.calls = []
 
-    def critique_pose(self, description, image_bytes):
+    def critique_pose(self, description, image_bytes, current_intent):
         self.calls.append({"description": description, "image_bytes": image_bytes})
         return self._verdicts.pop(0)
 
@@ -181,14 +181,14 @@ class FakeVisionClient:
 def test_apply_appearance_with_vision_client_critiques_and_returns_manifest(tmp_path):
     """When vision_client is supplied, apply_appearance() delegates to the
     pose_critique loop instead of its single-shot path -- see scarecrow-57h."""
-    from scarecrow_pipeline.nl_appearance import PoseCritique
+    from scarecrow_pipeline.nl_appearance import CritiqueDeltaFeedback
 
     registry_path = tmp_path / "registry.json"
     _write_registry(registry_path)
     client = FakeLLMClient([
         {"pose": {"bone_rotations": {"hip": [0.1, 0.0, 0.0]}}, "expression": {"weights": {}}},
     ])
-    vision_client = FakeVisionClient([PoseCritique(matches_description=True, critique="matches")])
+    vision_client = FakeVisionClient([CritiqueDeltaFeedback(pose_is_satisfactory=True, critique_summary="matches")])
     fake_run = _fake_run_factory()
     output_path = tmp_path / "out.png"
     # The real Blender subprocess writes output_path; _fake_run_factory only
