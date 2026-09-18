@@ -24,23 +24,44 @@ ANCHOR_LANDMARKS: dict[str, tuple[str, str]] = {
     "ANCHOR_CHEST_CENTER": ("spine4", "head"),
     "ANCHOR_PECTORAL_L": ("l_shoulder", "head"),
     "ANCHOR_PECTORAL_R": ("r_shoulder", "head"),
-    "ANCHOR_BICEP_LATERAL_L": ("l_upperarm", "tail"),
-    "ANCHOR_BICEP_LATERAL_R": ("r_upperarm", "tail"),
     "ANCHOR_FOREARM_VENTRAL_L": ("l_forearm", "tail"),
     "ANCHOR_FOREARM_VENTRAL_R": ("r_forearm", "tail"),
+}
+
+# anchor_name -> (bone_a, point_a, bone_b, point_b, t) where t in [0, 1]
+# blends from point_a (t=0) toward point_b (t=1). ANCHOR_BICEP_LATERAL_L/R
+# used to sit at the upperarm's rest TAIL (the elbow) -- the outermost point
+# on that arm -- which put it too far laterally for the OPPOSITE forearm's
+# 2-bone IK chain to reach without fully stretching (scarecrow-5mn). Blending
+# most of the way back toward the shoulder (upperarm head) keeps the point
+# semantically "near the upper arm" while pulling it much closer to the
+# body's centerline, within the opposite chain's natural reach.
+ANCHOR_BLEND_LANDMARKS: dict[str, tuple[str, str, str, str, float]] = {
+    "ANCHOR_BICEP_LATERAL_L": ("l_upperarm", "head", "l_upperarm", "tail", 0.35),
+    "ANCHOR_BICEP_LATERAL_R": ("r_upperarm", "head", "r_upperarm", "tail", 0.35),
 }
 
 ANCHOR_DESCRIPTIONS: dict[str, str] = {
     "ANCHOR_CHEST_CENTER": "center of the upper chest/collar, at spine4",
     "ANCHOR_PECTORAL_L": "left collarbone/pectoral, at the left shoulder joint",
     "ANCHOR_PECTORAL_R": "right collarbone/pectoral, at the right shoulder joint",
-    "ANCHOR_BICEP_LATERAL_L": "outer point near the left elbow -- good for the RIGHT hand to grip when arms are crossed",
-    "ANCHOR_BICEP_LATERAL_R": "outer point near the right elbow -- good for the LEFT hand to grip when arms are crossed",
+    "ANCHOR_BICEP_LATERAL_L": "upper point on the left upper arm, close to the shoulder -- good for the RIGHT hand to grip when arms are crossed",
+    "ANCHOR_BICEP_LATERAL_R": "upper point on the right upper arm, close to the shoulder -- good for the LEFT hand to grip when arms are crossed",
     "ANCHOR_FOREARM_VENTRAL_L": "left wrist, at the end of the left forearm",
     "ANCHOR_FOREARM_VENTRAL_R": "right wrist, at the end of the right forearm",
 }
 
-ANCHOR_NAMES: tuple[str, ...] = tuple(ANCHOR_LANDMARKS)
+ANCHOR_NAMES: tuple[str, ...] = tuple(ANCHOR_LANDMARKS) + tuple(ANCHOR_BLEND_LANDMARKS)
+
+
+def anchor_required_bones(anchor_name: str) -> tuple[str, ...]:
+    """Bone name(s) that must be present in a vocab's bone_landmarks for
+    this anchor to be resolvable -- one bone for a simple landmark, two
+    (possibly identical) for a blend landmark."""
+    if anchor_name in ANCHOR_BLEND_LANDMARKS:
+        bone_a, _point_a, bone_b, _point_b, _t = ANCHOR_BLEND_LANDMARKS[anchor_name]
+        return (bone_a, bone_b)
+    return (ANCHOR_LANDMARKS[anchor_name][0],)
 
 # Which forearm bone is the IK end-effector, and which upperarm bone is
 # that chain's shoulder-end landmark for pole-vector placement, per side.
@@ -62,9 +83,20 @@ def resolve_anchor_position(anchor_name: str, bone_landmarks: dict[str, dict]) -
     carry rest_head_world/rest_tail_world), e.g. {b["name"]: b for b in
     vocab.bones}.
     """
+    if anchor_name in ANCHOR_BLEND_LANDMARKS:
+        bone_a, point_a, bone_b, point_b, t = ANCHOR_BLEND_LANDMARKS[anchor_name]
+        pos_a = _resolve_bone_point(anchor_name, bone_a, point_a, bone_landmarks)
+        pos_b = _resolve_bone_point(anchor_name, bone_b, point_b, bone_landmarks)
+        return [pos_a[i] + (pos_b[i] - pos_a[i]) * t for i in range(3)]
     if anchor_name not in ANCHOR_LANDMARKS:
         raise UnknownAnchorError(f"{anchor_name!r} is not a known anchor -- see ANCHOR_NAMES")
     bone_name, point = ANCHOR_LANDMARKS[anchor_name]
+    return _resolve_bone_point(anchor_name, bone_name, point, bone_landmarks)
+
+
+def _resolve_bone_point(
+    anchor_name: str, bone_name: str, point: str, bone_landmarks: dict[str, dict]
+) -> list[float]:
     bone = bone_landmarks.get(bone_name)
     if bone is None:
         raise UnknownAnchorError(

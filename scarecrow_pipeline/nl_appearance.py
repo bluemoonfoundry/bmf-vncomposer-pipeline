@@ -236,7 +236,11 @@ def _available_anchor_names(vocab: AppearanceVocabulary) -> list[str]:
     vocabulary. Mirrors build_user_prompt's existing anchor_positions
     filter."""
     bone_landmarks = vocab.bone_landmarks
-    return [name for name in anchors.ANCHOR_NAMES if anchors.ANCHOR_LANDMARKS[name][0] in bone_landmarks]
+    return [
+        name
+        for name in anchors.ANCHOR_NAMES
+        if all(bone in bone_landmarks for bone in anchors.anchor_required_bones(name))
+    ]
 
 
 def build_system_prompt(vocab: AppearanceVocabulary) -> str:
@@ -317,7 +321,7 @@ def build_user_prompt(
     anchor_positions = {
         name: anchors.resolve_anchor_position(name, bone_landmarks)
         for name in anchors.ANCHOR_NAMES
-        if anchors.ANCHOR_LANDMARKS[name][0] in bone_landmarks
+        if all(bone in bone_landmarks for bone in anchors.anchor_required_bones(name))
     }
     prompt = (
         f"Character: {character}\n"

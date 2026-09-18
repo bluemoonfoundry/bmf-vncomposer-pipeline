@@ -64,20 +64,6 @@ def resolve_armature(character):
     return None
 
 
-def resolve_body_mesh(armature):
-    """Find the mesh object Armature-deformed by `armature` -- the
-    shrinkwrap collision guard (see apply_pose's IK section) needs this to
-    keep an IK target from sinking the hand into the torso. Matching via
-    an ARMATURE modifier pointing at this specific object is reliable
-    across characters, unlike matching by object name."""
-    for obj in bpy.data.objects:
-        if obj.type != "MESH":
-            continue
-        if any(mod.type == "ARMATURE" and mod.object == armature for mod in obj.modifiers):
-            return obj
-    return None
-
-
 def apply_expression(weights, character):
     """Drive Diffeomorphic FACS/morph controls by their raw property name.
 
@@ -177,21 +163,6 @@ def apply_pose(pose, character):
         constraint.name = "Scarecrow IK"
         constraint.target = target
         constraint.chain_count = 2
-
-        body_mesh = resolve_body_mesh(armature)
-        if body_mesh is not None:
-            guard = next((item for item in bone.constraints if item.name == "Scarecrow Surface Guard"), None) \
-                or bone.constraints.new("SHRINKWRAP")
-            guard.name = "Scarecrow Surface Guard"
-            guard.target = body_mesh
-            guard.shrinkwrap_type = "NEAREST_SURFACE"
-            guard.distance = 0.03
-            guard.influence = 0.8
-            # IK must resolve the base position first; the guard nudges it off
-            # the surface afterward, so it must sit after "Scarecrow IK" in
-            # the constraint stack -- constraints.new() already appends to
-            # the end, so no explicit reordering is needed as long as this
-            # block stays after the IK constraint is created above.
 
         pole_coordinates = pole_targets.get(bone_name)
         if pole_coordinates is not None:

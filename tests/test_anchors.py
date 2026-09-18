@@ -16,9 +16,23 @@ def _bone_landmarks():
 
 
 def test_resolve_anchor_position_uses_bone_rest_landmark():
-    position = anchors.resolve_anchor_position("ANCHOR_BICEP_LATERAL_R", _bone_landmarks())
+    position = anchors.resolve_anchor_position("ANCHOR_PECTORAL_R", _bone_landmarks())
 
-    assert position == [-0.3334, 0.0495, 1.1769]
+    assert position == [-0.0385, 0.0474, 1.3575]
+
+
+def test_resolve_anchor_position_blends_bicep_lateral_toward_shoulder():
+    landmarks = _bone_landmarks()
+    head = landmarks["r_upperarm"]["rest_head_world"]
+    tail = landmarks["r_upperarm"]["rest_tail_world"]
+
+    position = anchors.resolve_anchor_position("ANCHOR_BICEP_LATERAL_R", landmarks)
+
+    expected = [head[i] + (tail[i] - head[i]) * 0.35 for i in range(3)]
+    assert position == pytest.approx(expected)
+    # blended point sits much closer to the shoulder (head) than the old
+    # elbow (tail) landmark did -- that's the whole fix for scarecrow-5mn.
+    assert abs(position[0]) < abs(tail[0])
 
 
 def test_resolve_anchor_position_rejects_unknown_anchor():
