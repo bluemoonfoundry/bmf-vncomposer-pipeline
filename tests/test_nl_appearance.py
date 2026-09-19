@@ -340,7 +340,12 @@ def test_resolve_pose_intent_returns_none_for_none_intent():
     assert resolve_pose_intent(None, _full_arm_vocab()) is None
 
 
-def test_resolve_pose_intent_resolves_left_arm_anchor_to_world_space_ik_and_pole_targets():
+def test_resolve_pose_intent_passes_arm_goals_through_as_limb_goals():
+    # resolve_pose_intent no longer resolves anchors to world-space points
+    # itself -- that now happens LIVE in blender/worker.py, after this
+    # pose's bone_rotations are actually applied to the posed rig (see
+    # scarecrow-5mn: resolving from static rest-pose vocab data here goes
+    # stale the moment a torso/clavicle rotation moves the real shoulder).
     vocab = _full_arm_vocab()
     intent = PoseIntent(
         left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", layer_depth="outer"),
@@ -349,9 +354,13 @@ def test_resolve_pose_intent_resolves_left_arm_anchor_to_world_space_ik_and_pole
 
     pose = resolve_pose_intent(intent, vocab)
 
-    assert set(pose.ik_targets) == {"l_forearm", "r_forearm"}
-    assert set(pose.pole_targets) == {"l_forearm", "r_forearm"}
-    assert all(isinstance(v, list) and len(v) == 3 for v in pose.ik_targets.values())
+    assert set(pose.limb_goals) == {"l_forearm", "r_forearm"}
+    assert pose.limb_goals["l_forearm"].target_anchor == "ANCHOR_BICEP_LATERAL_R"
+    assert pose.limb_goals["l_forearm"].layer_depth == "outer"
+    assert pose.limb_goals["r_forearm"].target_anchor == "ANCHOR_BICEP_LATERAL_L"
+    assert pose.limb_goals["r_forearm"].layer_depth == "inner"
+    assert not pose.ik_targets
+    assert not pose.pole_targets
 
 
 def test_resolve_pose_intent_adds_clavicle_protraction_when_both_arms_layered():
@@ -396,7 +405,7 @@ def test_resolve_pose_intent_explicit_bone_rotations_win_over_weight_stance():
     assert pose.bone_rotations["spine1"] == [0.0, 0.0, 0.5]
 
 
-def test_translate_appearance_resolves_arms_into_ik_targets():
+def test_translate_appearance_resolves_arms_into_limb_goals():
     vocab = _full_arm_vocab()
     client = FakeLLMClient([
         {
@@ -411,7 +420,7 @@ def test_translate_appearance_resolves_arms_into_ik_targets():
     result = translate_appearance("JasonCross", "arms crossed", client, vocab=vocab)
 
     assert isinstance(result, AppearanceResult)
-    assert set(result.pose.ik_targets) == {"l_forearm", "r_forearm"}
+    assert set(result.pose.limb_goals) == {"l_forearm", "r_forearm"}
 
 
 def test_apply_critique_delta_adds_delta_meters_to_offset():
@@ -444,6 +453,26 @@ def test_apply_critique_delta_clamps_to_plus_minus_20cm():
     new_intent = apply_critique_delta(intent, feedback)
 
     assert new_intent.pose.left_arm.character_local_offset[0] == 0.20
+
+
+def test_apply_critique_delta_caps_a_single_oversized_delta():
+    # A vision critique's own extraction step sometimes emits a much larger
+    # delta_meters than its "typically 0.01-0.06m" guidance -- real runs saw
+    # 0.3-0.45m single-step deltas overshoot a correctly-placed anchor into
+    # a shrug/T-pose (scarecrow-5mn/scarecrow-p8d). MAX_CRITIQUE_DELTA_METERS
+    # caps the delta itself, not just the resulting offset.
+    intent = AppearanceIntent(
+        pose=PoseIntent(left_arm=LimbGoal(target_anchor="ANCHOR_BICEP_LATERAL_R", character_local_offset=[0.0, 0.0, 0.0]))
+    )
+    feedback = CritiqueDeltaFeedback(
+        pose_is_satisfactory=False,
+        critique_summary="hand far outboard",
+        adjustments=[LimbDelta(limb="left_arm", delta_meters=[-0.375, 0.0, 0.0])],
+    )
+
+    new_intent = apply_critique_delta(intent, feedback)
+
+    assert new_intent.pose.left_arm.character_local_offset[0] == pytest.approx(-0.08)
 
 
 def test_apply_critique_delta_swaps_target_anchor_when_given():

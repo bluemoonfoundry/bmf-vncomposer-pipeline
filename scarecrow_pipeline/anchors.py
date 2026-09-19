@@ -70,6 +70,32 @@ LIMB_BONES: dict[str, dict[str, str]] = {
     "R": {"ik_target_bone": "r_forearm", "shoulder_bone": "r_upperarm"},
 }
 
+# ik_target_bone -> (side, shoulder_bone), the reverse of LIMB_BONES -- used
+# by blender/worker.py to resolve a LimbGoalPayload keyed by ik_target_bone
+# name back into the side/shoulder_bone resolve_pole_target() needs.
+LIMB_BONES_BY_TARGET: dict[str, tuple[str, str]] = {
+    limb["ik_target_bone"]: (side, limb["shoulder_bone"]) for side, limb in LIMB_BONES.items()
+}
+
+# Empirically-measured IK pole_angle correction (radians), by ik_target_bone
+# name, compensating for this rig's confirmed L/R bone-roll asymmetry
+# (scarecrow-5mn) -- l_upperarm/r_upperarm's local axes are not a plain
+# mirror image (a true mirror would only flip world X; instead, the local
+# X axis' world-Z component flips SIGN, a genuine roll difference baked
+# into the rig, not just position mirroring). Without this, the identical
+# pole_target-placement convention that gives l_forearm's IK chain a
+# natural forward elbow bend gives r_forearm's chain an unnatural backward
+# "wing" bend instead (confirmed both by kinematic_sanity_check and by a
+# real Blender pole_angle sweep in blender/worker.py's history -- 170deg
+# put r_upperarm's live elbow height within 3mm of l_upperarm's, comfortably
+# forward of chest-center, versus a visible backward wing at the default
+# 0deg). This is a property of the RIG's bone roll, not of any specific
+# pose/target, so a fixed per-bone correction is expected to generalize;
+# bones with no confirmed asymmetry (not listed here) get 0deg, unchanged.
+POLE_ANGLE_CORRECTION: dict[str, float] = {
+    "r_forearm": math.radians(170.0),
+}
+
 
 class UnknownAnchorError(ValueError):
     """Raised when a target_anchor/change_anchor name isn't in ANCHOR_NAMES,
@@ -120,6 +146,32 @@ def character_offset_to_world(offset: list[float]) -> list[float]:
 
 def clamp_offset(offset: list[float], limit: float = 0.20) -> list[float]:
     return [max(-limit, min(limit, value)) for value in offset]
+
+
+# Elbow-forward sanity margin, in meters. A DOWN_FORWARD elbow_strategy (the
+# default for a relaxed/crossed-arm bend) is supposed to swing the elbow
+# forward/across the chest -- but the 2-bone IK solver, given this rig's
+# confirmed L/R bone-roll asymmetry (scarecrow-5mn), can instead swing the
+# whole upper arm backward into a "wing" shape that looks nothing like
+# crossed arms, and the vision critique wasn't reliably catching that (two
+# confirmed false passes). world Y: more positive = further toward the
+# character's back (see character_offset_to_world's docstring) -- an elbow
+# meaningfully more positive-Y than chest-center is a solver failure, not a
+# valid relaxed-arm pose, regardless of what the vision critique says.
+ELBOW_FORWARD_MARGIN = 0.10
+
+
+def check_elbow_not_behind_chest(elbow_world_y: float, chest_world_y: float, margin: float = ELBOW_FORWARD_MARGIN) -> bool:
+    """True if a DOWN_FORWARD-strategy elbow is plausibly bending forward/
+    across the chest rather than having swung backward into a wing shape.
+
+    Calibrated against real Blender runs (scarecrow-5mn/scarecrow-p8d): a
+    correctly-bending elbow measured world Y -0.10 to -0.13 (forward of
+    chest-center's ~0.03-0.05), while the broken "wing" bend measured +0.19
+    to +0.23 (clearly behind it) -- so 0.10m of slack past chest-center
+    cleanly separates the two without being tripped by a normal relaxed bend.
+    """
+    return elbow_world_y <= chest_world_y + margin
 
 
 def resolve_limb_target(

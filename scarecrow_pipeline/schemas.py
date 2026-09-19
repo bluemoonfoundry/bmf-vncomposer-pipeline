@@ -15,6 +15,29 @@ class FACSExpression(BaseModel):
     weights: dict[str, Weight] = Field(default_factory=dict)
 
 
+class LimbGoalPayload(BaseModel):
+    """One arm's IK goal, expressed as a semantic anchor + small offset --
+    NOT a pre-resolved world-space point. blender/worker.py resolves this
+    LIVE, from the character's currently-posed bone matrices (after this
+    same PosePayload's bone_rotations/root_location are applied and the
+    depsgraph is updated), not from static rest-pose data.
+
+    This exists because resolving the anchor/pole world position ahead of
+    time (in plain Python, from docs/posable_bones.json's REST bone
+    positions -- the original approach) goes stale the moment a torso/spine/
+    clavicle bone_rotation is applied in the same pose: the shoulder is no
+    longer where the rest-pose data says it is, so a world-space IK target
+    computed from that stale position drifts away from the actual (now
+    rotated) shoulder/chest, producing an asymmetric, not-actually-crossed
+    arm pose -- see scarecrow-5mn."""
+
+    model_config = ConfigDict(extra="forbid")
+    target_anchor: str = Field(..., description="One of scarecrow_pipeline.anchors.ANCHOR_NAMES.")
+    character_local_offset: Vector3 = Field(default=[0.0, 0.0, 0.0])
+    layer_depth: Literal["inner", "outer", "neutral"] = "neutral"
+    elbow_strategy: Literal["DOWN_FORWARD", "OUTWARD", "DOWN_PINNED", "UP_FLUID"] = "DOWN_FORWARD"
+
+
 class PosePayload(BaseModel):
     """Body pose, expressed as direct Blender bone control.
 
@@ -34,14 +57,34 @@ class PosePayload(BaseModel):
         default=None,
         description="Optional world-space-ish offset applied to the root ('hip') bone's location, for crouching/leaning/repositioning.",
     )
-    ik_targets: dict[str, Vector3] = Field(default_factory=dict)
+    ik_targets: dict[str, Vector3] = Field(
+        default_factory=dict,
+        description=(
+            "Bone name -> world-space IK end-effector point, applied as-is with "
+            "no further resolution. Superseded by limb_goals for the same bone "
+            "name -- prefer limb_goals for anything anchor-based (arm gestures), "
+            "since a raw world-space point here is computed before this pose's "
+            "own bone_rotations are applied and can't account for them."
+        ),
+    )
     pole_targets: dict[str, Vector3] = Field(
         default_factory=dict,
         description=(
             "Bone name -> world-space pole (elbow/knee direction) point, for the "
             "2-bone IK chain whose end-effector target is ik_targets[same bone "
             "name]. A pole_targets entry with no matching ik_targets entry is "
-            "meaningless and will be rejected."
+            "meaningless and will be rejected. Ignored for a bone also present "
+            "in limb_goals (its pole is resolved live instead)."
+        ),
+    )
+    limb_goals: dict[str, LimbGoalPayload] = Field(
+        default_factory=dict,
+        description=(
+            "IK target bone name (e.g. 'l_forearm') -> LimbGoalPayload, resolved "
+            "LIVE in blender/worker.py from the character's currently-posed bone "
+            "matrices, not from static rest-pose data -- see LimbGoalPayload's "
+            "docstring and scarecrow-5mn. Takes priority over ik_targets/"
+            "pole_targets for the same bone name."
         ),
     )
     look_at_target: Vector3 | None = Field(

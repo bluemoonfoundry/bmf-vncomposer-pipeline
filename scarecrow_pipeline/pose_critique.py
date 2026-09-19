@@ -24,6 +24,7 @@ from scarecrow_pipeline.nl_appearance import (
     AppearanceIntent,
     AppearanceResult,
     AppearanceVocabulary,
+    CritiqueDeltaFeedback,
     LLMClient,
     VisionCritiqueClient,
     apply_critique_delta,
@@ -90,8 +91,21 @@ def run_with_critique(
             return {"status": "render_failed", "attempts": attempt, "error": str(exc)}
         last_outcome = outcome
 
-        image_bytes = outcome.image_path.read_bytes()
-        feedback = vision_client.critique_pose(description, image_bytes, intent.pose)
+        kinematic_check = outcome.entry.get("kinematic_check", {})
+        if not kinematic_check.get("passed", True):
+            # A known IK-solver failure mode (scarecrow-5mn/scarecrow-p8d)
+            # that the vision critique has confirmed-false-passed twice --
+            # already known to be wrong, so skip the API call entirely.
+            feedback = CritiqueDeltaFeedback(
+                pose_is_satisfactory=False,
+                critique_summary=(
+                    "Local kinematic sanity check failed (no vision API call made): "
+                    f"{kinematic_check.get('violations')}"
+                ),
+            )
+        else:
+            image_bytes = outcome.image_path.read_bytes()
+            feedback = vision_client.critique_pose(description, image_bytes, intent.pose)
         last_feedback = feedback
 
         if feedback.pose_is_satisfactory:

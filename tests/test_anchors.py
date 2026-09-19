@@ -119,6 +119,23 @@ def test_resolve_weight_stance_shift_right_mirrors_shift_left():
     assert right_rotations["spine1"][2] == -left_rotations["spine1"][2]
 
 
+def test_check_elbow_not_behind_chest_accepts_real_good_bend():
+    # l_upperarm's actual measured elbow (tail) Y from a correctly-bending
+    # DOWN_FORWARD arm, chest (spine4 head) Y ~0.05 (scarecrow-5mn verification).
+    assert anchors.check_elbow_not_behind_chest(elbow_world_y=-0.1063, chest_world_y=0.0318)
+
+
+def test_check_elbow_not_behind_chest_rejects_real_wing_bend():
+    # r_upperarm's actual measured elbow (tail) Y from the confirmed broken
+    # "wing" bend the vision critique falsely passed twice (scarecrow-5mn/p8d).
+    assert not anchors.check_elbow_not_behind_chest(elbow_world_y=0.2327, chest_world_y=0.0318)
+
+
+def test_check_elbow_not_behind_chest_margin_is_configurable():
+    assert anchors.check_elbow_not_behind_chest(elbow_world_y=0.15, chest_world_y=0.05, margin=0.20)
+    assert not anchors.check_elbow_not_behind_chest(elbow_world_y=0.15, chest_world_y=0.05, margin=0.05)
+
+
 def test_resolve_clavicle_protraction_mirrors_left_and_right():
     rotations = anchors.resolve_clavicle_protraction()
 

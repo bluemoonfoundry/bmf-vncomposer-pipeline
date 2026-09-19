@@ -67,6 +67,57 @@
       "title": "FACSExpression",
       "type": "object"
     },
+    "LimbGoalPayload": {
+      "additionalProperties": false,
+      "description": "One arm's IK goal, expressed as a semantic anchor + small offset --\nNOT a pre-resolved world-space point. blender/worker.py resolves this\nLIVE, from the character's currently-posed bone matrices (after this\nsame PosePayload's bone_rotations/root_location are applied and the\ndepsgraph is updated), not from static rest-pose data.\n\nThis exists because resolving the anchor/pole world position ahead of\ntime (in plain Python, from docs/posable_bones.json's REST bone\npositions -- the original approach) goes stale the moment a torso/spine/\nclavicle bone_rotation is applied in the same pose: the shoulder is no\nlonger where the rest-pose data says it is, so a world-space IK target\ncomputed from that stale position drifts away from the actual (now\nrotated) shoulder/chest, producing an asymmetric, not-actually-crossed\narm pose -- see scarecrow-5mn.",
+      "properties": {
+        "target_anchor": {
+          "description": "One of scarecrow_pipeline.anchors.ANCHOR_NAMES.",
+          "title": "Target Anchor",
+          "type": "string"
+        },
+        "character_local_offset": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Character Local Offset",
+          "type": "array"
+        },
+        "layer_depth": {
+          "default": "neutral",
+          "enum": [
+            "inner",
+            "outer",
+            "neutral"
+          ],
+          "title": "Layer Depth",
+          "type": "string"
+        },
+        "elbow_strategy": {
+          "default": "DOWN_FORWARD",
+          "enum": [
+            "DOWN_FORWARD",
+            "OUTWARD",
+            "DOWN_PINNED",
+            "UP_FLUID"
+          ],
+          "title": "Elbow Strategy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_anchor"
+      ],
+      "title": "LimbGoalPayload",
+      "type": "object"
+    },
     "PosePayload": {
       "additionalProperties": false,
       "description": "Body pose, expressed as direct Blender bone control.\n\nDAZ Studio is only ever used to source the base character once; all\nposing happens in Blender so it can be driven by natural language. Bone\nnames must match the imported rig's posable (non-\"(drv)\") pose bone\nnames, e.g. \"hip\", \"r_upperarm\", \"l_forearm\" -- see\ndocs/posable_bones.json for the full generated list.",
@@ -111,6 +162,7 @@
             "minItems": 3,
             "type": "array"
           },
+          "description": "Bone name -> world-space IK end-effector point, applied as-is with no further resolution. Superseded by limb_goals for the same bone name -- prefer limb_goals for anything anchor-based (arm gestures), since a raw world-space point here is computed before this pose's own bone_rotations are applied and can't account for them.",
           "title": "Ik Targets",
           "type": "object"
         },
@@ -123,8 +175,16 @@
             "minItems": 3,
             "type": "array"
           },
-          "description": "Bone name -> world-space pole (elbow/knee direction) point, for the 2-bone IK chain whose end-effector target is ik_targets[same bone name]. A pole_targets entry with no matching ik_targets entry is meaningless and will be rejected.",
+          "description": "Bone name -> world-space pole (elbow/knee direction) point, for the 2-bone IK chain whose end-effector target is ik_targets[same bone name]. A pole_targets entry with no matching ik_targets entry is meaningless and will be rejected. Ignored for a bone also present in limb_goals (its pole is resolved live instead).",
           "title": "Pole Targets",
+          "type": "object"
+        },
+        "limb_goals": {
+          "additionalProperties": {
+            "$ref": "#/$defs/LimbGoalPayload"
+          },
+          "description": "IK target bone name (e.g. 'l_forearm') -> LimbGoalPayload, resolved LIVE in blender/worker.py from the character's currently-posed bone matrices, not from static rest-pose data -- see LimbGoalPayload's docstring and scarecrow-5mn. Takes priority over ik_targets/pole_targets for the same bone name.",
+          "title": "Limb Goals",
           "type": "object"
         },
         "look_at_target": {

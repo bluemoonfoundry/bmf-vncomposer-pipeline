@@ -91,6 +91,43 @@ def test_run_with_critique_passes_on_first_attempt(tmp_path):
     assert len(translate_client.calls) == 1
 
 
+def test_run_with_critique_skips_vision_call_on_failed_kinematic_check(tmp_path):
+    # blender/worker.py's kinematic_sanity_check runs for free, post-IK,
+    # before any vision API call -- if it already knows the pose is wrong
+    # (scarecrow-5mn/scarecrow-p8d's confirmed "wing" bend), run_with_critique
+    # must not waste a vision-critique call confirming that.
+    vocab = _small_vocab()
+    translate_client = FakeLLMClient([
+        {"pose": {"right_arm": {"target_anchor": "ANCHOR_BICEP_LATERAL_R"}}, "expression": {"weights": {}}},
+    ])
+    vision_client = FakeVisionClient([])  # would raise IndexError if ever called
+    image_path = tmp_path / "out.png"
+
+    def render_fn(result, attempt):
+        image_path.write_bytes(b"fake-png-bytes")
+        entry = {
+            "status": "ok",
+            "output_path": str(image_path),
+            "kinematic_check": {"passed": False, "violations": [{"bone": "r_upperarm", "reason": "wing bend"}]},
+        }
+        return RenderOutcome(entry=entry, image_path=image_path)
+
+    outcome = run_with_critique(
+        "JasonCross",
+        "arms crossed",
+        translate_client=translate_client,
+        vision_client=vision_client,
+        render_fn=render_fn,
+        vocab=vocab,
+        max_attempts=1,
+    )
+
+    assert outcome["status"] == "ok"
+    assert outcome["matches_description"] is False
+    assert "kinematic sanity check failed" in outcome["critique"].lower()
+    assert len(vision_client.calls) == 0
+
+
 def test_run_with_critique_applies_numeric_delta_without_retranslating_then_passes(tmp_path):
     vocab = _small_vocab()
     translate_client = FakeLLMClient([
@@ -125,10 +162,12 @@ def test_run_with_critique_applies_numeric_delta_without_retranslating_then_pass
     # The pose-generation LLM is called exactly once -- the second attempt's
     # pose comes from apply_critique_delta, not a fresh translate call.
     assert len(translate_client.calls) == 1
-    # attempt 2's resolved ik_target must have moved up (+z) from attempt 1's.
-    attempt_1_target = render_fn.calls[0]["result"].pose.ik_targets["r_forearm"]
-    attempt_2_target = render_fn.calls[1]["result"].pose.ik_targets["r_forearm"]
-    assert attempt_2_target[2] > attempt_1_target[2]
+    # attempt 2's limb_goals offset must have moved up (+z) from attempt 1's --
+    # ik_targets are no longer resolved here at all (limb_goals are resolved
+    # LIVE in blender/worker.py instead, see scarecrow-5mn).
+    attempt_1_offset = render_fn.calls[0]["result"].pose.limb_goals["r_forearm"].character_local_offset
+    attempt_2_offset = render_fn.calls[1]["result"].pose.limb_goals["r_forearm"].character_local_offset
+    assert attempt_2_offset[2] > attempt_1_offset[2]
 
 
 def test_run_with_critique_returns_best_effort_after_exhausting_attempts(tmp_path):

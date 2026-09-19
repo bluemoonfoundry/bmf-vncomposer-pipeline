@@ -119,6 +119,18 @@ def _render_once(
     else:
         entry["status"] = "failed"
         entry["stderr"] = (completed.stderr or "")[-4000:]
+
+    # blender/worker.py prints this after every render -- a cheap,
+    # deterministic post-IK check for a known solver failure mode
+    # (scarecrow-5mn/scarecrow-p8d), read back here so run_with_critique can
+    # skip the vision-critique API call when it's already known to be wrong.
+    for line in (completed.stdout or "").splitlines():
+        if line.startswith("KINEMATIC_CHECK: "):
+            try:
+                entry["kinematic_check"] = json.loads(line[len("KINEMATIC_CHECK: "):])
+            except json.JSONDecodeError:
+                pass
+            break
     return entry
 
 

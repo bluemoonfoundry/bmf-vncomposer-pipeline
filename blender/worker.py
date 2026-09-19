@@ -18,6 +18,14 @@ if str(SCRIPT_DIR) not in sys.path:
 from compositor import build_compositor
 from collection_utils import strip_dup_suffix
 
+REPO_ROOT = SCRIPT_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+# anchors.py is bpy-free/pydantic-free by design (see scarecrow_pipeline's
+# __init__.py docstring) -- safe to import directly under Blender's bundled
+# Python, which has neither pydantic nor this repo on its default path.
+from scarecrow_pipeline import anchors
+
 
 def append_collection(master_blend, collection_name):
     """Append a collection and all of its linked contents from a master cache."""
@@ -104,6 +112,43 @@ def apply_expression(weights, character):
         bpy.context.view_layer.update()
 
 
+def kinematic_sanity_check(armature, limb_goals):
+    """Cheap, deterministic, non-LLM check for a specific known IK-solver
+    failure mode (scarecrow-5mn/scarecrow-p8d): a DOWN_FORWARD-strategy
+    elbow swinging backward into a "wing" shape instead of bending forward
+    across the chest. Must run AFTER the IK constraints are created and the
+    depsgraph updated, so it sees the actually-SOLVED elbow position, not
+    just the requested wrist target. The vision critique confirmed-false-
+    passed this exact failure twice in a row -- catching it here, for free,
+    avoids spending an API call (and a render attempt) confirming what this
+    check can already tell for certain. Returns a list of violation dicts,
+    empty if everything passed."""
+    chest_bone = armature.pose.bones.get("spine4")
+    if chest_bone is None:
+        return []
+    chest_y = (armature.matrix_world @ chest_bone.head).y
+    violations = []
+    for ik_target_bone, goal in (limb_goals or {}).items():
+        if goal.get("elbow_strategy", "DOWN_FORWARD") != "DOWN_FORWARD":
+            continue
+        side_info = anchors.LIMB_BONES_BY_TARGET.get(ik_target_bone)
+        if side_info is None:
+            continue
+        _side, shoulder_bone_name = side_info
+        upperarm = armature.pose.bones.get(shoulder_bone_name)
+        if upperarm is None:
+            continue
+        elbow_y = (armature.matrix_world @ upperarm.tail).y
+        if not anchors.check_elbow_not_behind_chest(elbow_y, chest_y):
+            violations.append({
+                "bone": shoulder_bone_name,
+                "reason": "elbow behind chest plane (DOWN_FORWARD elbow_strategy)",
+                "elbow_y": round(elbow_y, 4),
+                "chest_y": round(chest_y, 4),
+            })
+    return violations
+
+
 def apply_pose(pose, character):
     """Pose the imported Diffeomorphic rig directly in Blender.
 
@@ -115,13 +160,16 @@ def apply_pose(pose, character):
     overridden, so direct rotation_euler writes are safe. See
     blender/dump_facs_drivers.py and docs/posable_bones.json for how to
     verify a bone/property before driving it.
+
+    Returns kinematic_sanity_check()'s violations list (empty if none, or
+    if pose/armature couldn't be resolved at all).
     """
     if not pose:
-        return
+        return []
     armature = resolve_armature(character)
     if armature is None:
         print(f"WARNING: no armature found for character {character!r}; pose ignored.")
-        return
+        return []
 
     for bone_name, euler in pose.get("bone_rotations", {}).items():
         bone = armature.pose.bones.get(bone_name)
@@ -143,8 +191,56 @@ def apply_pose(pose, character):
         if root_bone is not None:
             root_bone.location = Vector(root_location)
 
-    pole_targets = pose.get("pole_targets", {})
-    ik_target_bones = pose.get("ik_targets", {})
+    # Force the depsgraph to evaluate the FK rotations/location just applied
+    # above BEFORE resolving any limb_goals anchor below -- otherwise
+    # pose.bones[...].head/.tail here would still reflect the PRE-rotation
+    # pose, and a live-posed torso/shoulder is the entire point of
+    # resolving anchors live rather than from static rest-pose data (see
+    # LimbGoalPayload's docstring and scarecrow-5mn).
+    bpy.context.view_layer.update()
+
+    pole_targets = dict(pose.get("pole_targets", {}))
+    ik_target_bones = dict(pose.get("ik_targets", {}))
+    for bone_name, goal in pose.get("limb_goals", {}).items():
+        if bone_name not in anchors.LIMB_BONES_BY_TARGET:
+            print(f"WARNING: limb_goals bone {bone_name!r} has no side/shoulder mapping in "
+                  f"anchors.LIMB_BONES_BY_TARGET; ignored.")
+            continue
+        side, shoulder_bone = anchors.LIMB_BONES_BY_TARGET[bone_name]
+        target_anchor = goal["target_anchor"]
+        try:
+            required_bones = set(anchors.anchor_required_bones(target_anchor)) | {shoulder_bone}
+        except anchors.UnknownAnchorError as exc:
+            print(f"WARNING: {exc}; limb_goals entry for {bone_name!r} ignored.")
+            continue
+        live_landmarks = {}
+        missing_bones = []
+        for landmark_bone in required_bones:
+            landmark_pose_bone = armature.pose.bones.get(landmark_bone)
+            if landmark_pose_bone is None:
+                missing_bones.append(landmark_bone)
+                continue
+            live_landmarks[landmark_bone] = {
+                "rest_head_world": list(armature.matrix_world @ landmark_pose_bone.head),
+                "rest_tail_world": list(armature.matrix_world @ landmark_pose_bone.tail),
+            }
+        if missing_bones:
+            print(f"WARNING: limb_goals entry for {bone_name!r} needs bone(s) {missing_bones} not "
+                  f"found on armature {armature.name!r}; ignored.")
+            continue
+        ik_position = anchors.resolve_limb_target(
+            target_anchor,
+            goal.get("character_local_offset", [0.0, 0.0, 0.0]),
+            goal.get("layer_depth", "neutral"),
+            live_landmarks,
+        )
+        shoulder_position = live_landmarks[shoulder_bone]["rest_head_world"]
+        pole_position = anchors.resolve_pole_target(
+            goal.get("elbow_strategy", "DOWN_FORWARD"), side, ik_position, shoulder_position
+        )
+        ik_target_bones[bone_name] = ik_position
+        pole_targets[bone_name] = pole_position
+
     for bone_name in pole_targets:
         if bone_name not in ik_target_bones:
             print(f"WARNING: pole target for bone {bone_name!r} has no matching ik_targets "
@@ -163,6 +259,7 @@ def apply_pose(pose, character):
         constraint.name = "Scarecrow IK"
         constraint.target = target
         constraint.chain_count = 2
+        constraint.pole_angle = anchors.POLE_ANGLE_CORRECTION.get(bone_name, 0.0)
 
         pole_coordinates = pole_targets.get(bone_name)
         if pole_coordinates is not None:
@@ -203,6 +300,7 @@ def apply_pose(pose, character):
                 bone.constraints.remove(constraint)
 
     bpy.context.view_layer.update()
+    return kinematic_sanity_check(armature, pose.get("limb_goals", {}))
 
 
 def configure_camera(camera_data):
@@ -249,7 +347,7 @@ def render(request):
     set_variant_visibility(["Outfit_", "Hair_"], active)
     character = request["character"]
     apply_expression(request.get("expression", {}).get("weights", {}), character)
-    apply_pose(request.get("pose"), character)
+    kinematic_violations = apply_pose(request.get("pose"), character)
     configure_camera(request.get("camera", {}))
     configure_lighting(request.get("lighting", {}))
     add_shadow_catcher()
@@ -262,6 +360,9 @@ def render(request):
     build_compositor(request.get("background_path"), request["output_path"])
     bpy.ops.wm.save_as_mainfile(filepath=request["output_path"] + ".blend")
     bpy.ops.render.render(write_still=True)
+    # Parsed back out of stdout by apply_appearance.py's _render_once -- see
+    # kinematic_sanity_check's docstring and scarecrow-5mn/scarecrow-p8d.
+    print("KINEMATIC_CHECK: " + json.dumps({"passed": not kinematic_violations, "violations": kinematic_violations}))
 
 
 def character_variant_collections(character_collection):

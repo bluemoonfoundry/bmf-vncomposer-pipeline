@@ -29,7 +29,7 @@ from typing import Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from scarecrow_pipeline import anchors
-from scarecrow_pipeline.schemas import FACSExpression, PosePayload, Vector3
+from scarecrow_pipeline.schemas import FACSExpression, LimbGoalPayload, PosePayload, Vector3
 
 MAX_ATTEMPTS = 2
 
@@ -163,6 +163,17 @@ class CritiqueDeltaFeedback(BaseModel):
     adjustments: list[LimbDelta] = Field(default_factory=list)
 
 
+# The critique-delta extraction prompt tells the model a correction is
+# "typically 0.01-0.06m, not a full re-placement" (see critique_pose's
+# complete_json call below), but that's a hint the model doesn't reliably
+# follow -- real runs against anchors.py's now-close-to-centerline
+# ANCHOR_BICEP_LATERAL_L/R produced single-step deltas of 0.3-0.45m
+# (scarecrow-5mn/scarecrow-p8d), overshooting a correctly-placed anchor
+# into a shrug/T-pose. Enforcing the stated range here, in code, rather
+# than trusting the model to self-limit, is the fix.
+MAX_CRITIQUE_DELTA_METERS = 0.08
+
+
 def apply_critique_delta(intent: AppearanceIntent, feedback: CritiqueDeltaFeedback) -> AppearanceIntent:
     """Apply corrective vector deltas to a previous PoseIntent, in place of
     re-invoking the pose-generation LLM -- see docs/gemini_ikplan_a.md
@@ -177,7 +188,8 @@ def apply_critique_delta(intent: AppearanceIntent, feedback: CritiqueDeltaFeedba
             continue
         if adjustment.change_anchor is not None:
             goal.target_anchor = adjustment.change_anchor
-        offset = [goal.character_local_offset[i] + adjustment.delta_meters[i] for i in range(3)]
+        delta = anchors.clamp_offset(list(adjustment.delta_meters), limit=MAX_CRITIQUE_DELTA_METERS)
+        offset = [goal.character_local_offset[i] + delta[i] for i in range(3)]
         goal.character_local_offset = anchors.clamp_offset(offset)
     return new_intent
 
@@ -480,11 +492,17 @@ def resolve_pose_intent(intent: PoseIntent | None, vocab: AppearanceVocabulary) 
     blender/worker.py already knows how to apply -- see
     docs/gemini_ikplan_a.md Phase 1/3, adapted: clavicle protraction and
     weight-stance resolve to plain bone_rotations/root_location numbers
-    (no bpy needed); only the arm IK targets need the anchor table."""
+    (no bpy needed). Arm goals are passed through as limb_goals rather than
+    resolved to world-space points here: anchor/pole positions depend on the
+    character's ACTUAL posed shoulder/torso, which only exists once
+    bone_rotations (weight_stance's counter-tilt, clavicle protraction) are
+    applied inside Blender -- resolving them here, from static rest-pose
+    vocab data, goes stale the moment those torso rotations move the real
+    shoulder away from its rest position (scarecrow-5mn). See
+    blender/worker.py's apply_pose for the live resolution."""
     if intent is None:
         return None
 
-    bone_landmarks = vocab.bone_landmarks
     bone_rotations: dict[str, list[float]] = {}
     root_location = intent.root_location
 
@@ -505,27 +523,22 @@ def resolve_pose_intent(intent: PoseIntent | None, vocab: AppearanceVocabulary) 
 
     bone_rotations.update(intent.bone_rotations)  # explicit LLM values win
 
-    ik_targets: dict[str, list[float]] = {}
-    pole_targets: dict[str, list[float]] = {}
+    limb_goals: dict[str, LimbGoalPayload] = {}
     for side, goal in (("L", intent.left_arm), ("R", intent.right_arm)):
         if goal is None:
             continue
-        limb_bones = anchors.LIMB_BONES[side]
-        ik_target_bone = limb_bones["ik_target_bone"]
-        shoulder_bone = limb_bones["shoulder_bone"]
-        ik_position = anchors.resolve_limb_target(
-            goal.target_anchor, goal.character_local_offset, goal.layer_depth, bone_landmarks
+        ik_target_bone = anchors.LIMB_BONES[side]["ik_target_bone"]
+        limb_goals[ik_target_bone] = LimbGoalPayload(
+            target_anchor=goal.target_anchor,
+            character_local_offset=goal.character_local_offset,
+            layer_depth=goal.layer_depth,
+            elbow_strategy=goal.elbow_strategy,
         )
-        shoulder_position = bone_landmarks[shoulder_bone]["rest_head_world"]
-        pole_position = anchors.resolve_pole_target(goal.elbow_strategy, side, ik_position, shoulder_position)
-        ik_targets[ik_target_bone] = ik_position
-        pole_targets[ik_target_bone] = pole_position
 
     return PosePayload(
         bone_rotations=bone_rotations,
         root_location=root_location,
-        ik_targets=ik_targets,
-        pole_targets=pole_targets,
+        limb_goals=limb_goals,
         look_at_target=intent.look_at_target,
     )
 
@@ -643,10 +656,28 @@ class AnthropicClient:
             else "right_arm: not set"
         )
 
+        arm_checklist = (
+            "3. IN_FRONT: is EVERY posed arm's forearm/hand visible in front of the torso "
+            "silhouette (not swung behind the back or hidden behind the body)? Look "
+            "specifically at each elbow -- an elbow that reads as pointing backward or "
+            "sitting behind the chest, even if the hand is visible, is a NO.\n"
+            "4. MATCHED_HEIGHT: if both left_arm and right_arm are posed with a gesture goal, "
+            "are their hands/forearms at roughly the same height and depth as each other (one "
+            "arm noticeably higher/further-back than the other, e.g. one near the collarbone "
+            "and the other near the stomach, is a NO), UNLESS the text description explicitly "
+            "asks for an asymmetric gesture?\n"
+            if (current_intent and (current_intent.left_arm or current_intent.right_arm))
+            else ""
+        )
         encoded = base64.standard_b64encode(image_bytes).decode("ascii")
         vision_response = self._client.messages.create(
             model=self._model,
-            max_tokens=1024,
+            # Was 1024 -- the explicit YES/NO checklist (added for
+            # scarecrow-5mn/scarecrow-p8d's false-pass problem) makes the
+            # model reason through more before answering, and a real run
+            # hit this cap with a fully empty text block as a result. 4096
+            # gives real headroom without the response growing unbounded.
+            max_tokens=4096,
             messages=[{
                 "role": "user",
                 "content": [
@@ -657,12 +688,21 @@ class AnthropicClient:
                     {
                         "type": "text",
                         "text": (
-                            "This is a rendered image of a character. Does the pose visually "
-                            f"match this description: {description!r}? The current arm state "
-                            f"is:\n{current_state}\n\n"
-                            "If a limb is wrong, say concretely which limb (left_arm/right_arm), "
-                            "which direction it should move (left/right, front/back, up/down), "
-                            "and roughly how far in centimeters."
+                            "This is a rendered image of a character. Evaluate it against this "
+                            f"description: {description!r}. The current arm state is:\n"
+                            f"{current_state}\n\n"
+                            "Answer each of these as an explicit YES or NO, in order, before "
+                            "anything else -- a vague overall impression is not enough, and a "
+                            "single NO means the pose does not match, even if the general gesture "
+                            "is recognizable:\n"
+                            "1. MATCHES_DESCRIPTION: does the overall pose/gesture match the text "
+                            "description?\n"
+                            "2. NO_DISTORTION: is every limb's geometry continuous and proportional "
+                            "-- no visibly stretched, twisted, or disconnected mesh?\n"
+                            f"{arm_checklist}"
+                            "Then, if any answer was NO, say concretely which limb (left_arm/"
+                            "right_arm), which direction it should move (left/right, front/back, "
+                            "up/down), and roughly how far in centimeters."
                         ),
                     },
                 ],
@@ -672,8 +712,12 @@ class AnthropicClient:
             (block.text for block in vision_response.content if block.type == "text"), ""
         )
         verdict_raw = self.complete_json(
-            "You extract structured numeric pose corrections from a critique. Respond with a "
-            "single JSON object matching the given schema. delta_meters is "
+            "You extract a structured pose verdict and corrections from a critique that answered "
+            "an explicit YES/NO checklist. Respond with a single JSON object matching the given "
+            "schema. pose_is_satisfactory must be false if ANY checklist item was answered NO -- "
+            "a single NO (e.g. an elbow behind the torso, or one arm noticeably higher than the "
+            "other) means the pose does not match, even if the critique's overall tone sounds "
+            "positive or the general gesture is recognizable. delta_meters is "
             "[left(+)/right(-), front(+)/back(-), up(+)/down(-)] meters to ADD to that limb's "
             "current character_local_offset -- a small nudge (typically 0.01-0.06), not a "
             "full re-placement, unless the critique says the anchor itself is wrong (use "
